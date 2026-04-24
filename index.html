@@ -1502,17 +1502,15 @@ function drawShape(ctx, shape, s){
       }
       break;
     case 'coastal':
-      // big gun battery - base platform
+      // base platform
       ctx.fillRect(-s*0.9, 0, s*1.8, s*0.4);
+      // turret dome (half circle)
       ctx.beginPath();
       ctx.arc(0, 0, s*0.55, Math.PI, 0);
       ctx.fill();
-      // center barrel (forward)
-      ctx.fillRect(-s*0.1, -s*0.55, s*1.1, 3);
-      // two angled barrels
-      ctx.fillRect(-s*0.1, -s*0.3, s*0.95, 3);
-      // base block
-      ctx.fillRect(-s*0.3, -s*0.5, s*0.6, s*0.5);
+      // two parallel barrels pointing forward
+      ctx.fillRect(0, -s*0.45, s*1.35, 2.5);
+      ctx.fillRect(0, -s*0.18, s*1.35, 2.5);
       break;
   }
 }
