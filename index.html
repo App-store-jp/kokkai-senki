@@ -518,8 +518,8 @@ const UNITS = {
   }
 };
 
-const ROW1 = ['destroyer','submarine','landing','missile','battleship','yamato'];
-const ROW2 = ['fighter','bomber','carrier','nuclear','aa','coastal'];
+const ROW1 = ['destroyer','submarine','missile','yamato','nuclear'];
+const ROW2 = ['fighter','bomber','carrier','torpedo_bomber','aa','coastal'];
 
 /* ---------- Unit info (for long-press popup) ---------- */
 const UNIT_INFO = {
@@ -593,10 +593,10 @@ function resize(){
   G.H = rect.height;
   // layer bands
   G.skyY     = 0;
-  G.skyBand  = G.H * 0.35;   // air layer height
-  G.surfaceY = G.skyBand;    // sea starts here
-  G.surfaceBand = G.H - G.skyBand; // full sea band (1 zone)
-  G.deepY = G.surfaceY + G.surfaceBand * 0.5; // virtual midpoint for underwater units
+  G.skyBand  = G.H * 0.60;
+  G.surfaceY = G.skyBand;
+  G.surfaceBand = G.H - G.skyBand;
+  G.deepY = G.surfaceY + G.surfaceBand * 0.5;
   G.deepBand = G.H - G.deepY;
 }
 
