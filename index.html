@@ -454,7 +454,7 @@ const UNITS = {
   },
   carrier: {
     name:'空母', short:'空母', layer:'surface', tier:'V', tag:'制空支援',
-    cost:360, hp:550, dmg:0, speed:4, range:0, atk:0, reward:150,
+    cost:700, hp:550, dmg:0, speed:4, range:0, atk:0, reward:250,
     targets:[], spawns:'random', spawnInterval:6.0, size:25,
     shape:'carrier'
   },
@@ -840,27 +840,30 @@ function updateUnit(u, dt){
   // Single atkCd decrement per tick (faster when enraged)
   if(u.atkCd > 0) u.atkCd -= dt * enrageMult;
 
-  // Nuclear cruiser: area blast hitting all enemy surface units
+  // Nuclear cruiser: blast centered on highest HP enemy surface unit
   if(tpl.nuclear && u.atkCd <= 0){
     const enemySide = u.side==='ally' ? 'enemy' : 'ally';
     const blastR = G.W / 3;
-    let hit = false;
+    // Find highest HP enemy surface unit as blast center
+    let target = null, maxHp = -1;
     for(const other of G.units){
       if(other.side !== enemySide) continue;
       if(other.tpl.layer === 'air') continue;
-      const d = Math.hypot(other.x - u.x, other.y - u.y);
-      if(d <= blastR){
-        other.hp -= tpl.dmg * (1 - d/blastR * 0.5); // falloff
-        hit = true;
-      }
+      if(other.hp > maxHp){ maxHp = other.hp; target = other; }
+    }
+    const bx = target ? target.x : u.x;
+    const by2 = target ? target.y : u.y;
+    // Damage all enemies near blast center
+    for(const other of G.units){
+      if(other.side !== enemySide) continue;
+      if(other.tpl.layer === 'air') continue;
+      const d = Math.hypot(other.x - bx, other.y - by2);
+      if(d <= blastR) other.hp -= tpl.dmg * (1 - d/blastR * 0.5);
     }
     // Hit enemy base if in range
     const baseX = u.side==='ally' ? G.W-20 : 20;
-    if(Math.abs(u.x - baseX) <= blastR){
-      G[enemySide].hp -= tpl.dmg * 0.5;
-    }
-    // Big nuclear explosion FX
-    G.fx.push({kind:'nuclear', x:u.x, y:u.y, size:blastR, t:0, life:1.2});
+    if(Math.abs(bx - baseX) < blastR) G[enemySide].hp -= tpl.dmg * 0.5;
+    G.fx.push({kind:'nuclear', x:bx, y:by2, size:blastR, t:0, life:1.2});
     toast(u.side==='ally' ? '☢ 核爆発！' : '☢ 敵核攻撃！');
     u.atkCd = tpl.atk;
     return;
