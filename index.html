@@ -40,3 +40,1819 @@ body{
   background:#0a0a0a;
   position:relative;
 }
+
+/* ========== TOP HUD ========== */
+#hud{
+  display:grid;grid-template-columns:1fr auto 1fr;align-items:center;
+  gap:8px;padding:6px 10px 4px;
+  background:linear-gradient(180deg,var(--panel-top),var(--panel));
+  border-bottom:1px solid rgba(255,255,255,.06);
+  font-family:"Zen Old Mincho",serif;
+  flex:0 0 auto;
+}
+.hud-side{display:flex;align-items:center;gap:8px;min-width:0;}
+.hud-side.right{justify-content:flex-end;}
+.hud-label{
+  font-family:"Zen Kaku Gothic New",sans-serif;font-weight:900;
+  letter-spacing:.16em;font-size:10px;color:rgba(236,228,211,.55);
+}
+.hud-bar-wrap{flex:1;min-width:0;}
+.hud-bar-track{
+  position:relative;height:14px;background:rgba(0,0,0,.45);
+  border:1px solid rgba(255,255,255,.08);
+}
+.hud-bar-fill{
+  position:absolute;inset:0;width:100%;transform-origin:left center;
+  transition:transform .25s ease;
+}
+.hud-bar-fill.ally{background:linear-gradient(90deg,#3a6d9c,#88c3f5);}
+.hud-bar-fill.enemy{background:linear-gradient(270deg,#a83232,#e97676);}
+.hud-side.right .hud-bar-fill{transform-origin:right center;}
+.hud-hp{
+  font-family:"Zen Old Mincho",serif;font-weight:900;font-size:13px;
+  color:var(--paper);letter-spacing:.05em;white-space:nowrap;
+}
+.hud-title{
+  text-align:center;font-family:"Zen Old Mincho",serif;
+  font-weight:900;font-size:15px;letter-spacing:.3em;
+  color:var(--paper);padding:0 4px;
+}
+.hud-title .mini{display:block;font-family:"Zen Kaku Gothic New",sans-serif;font-weight:500;font-size:8px;letter-spacing:.4em;color:rgba(236,228,211,.5);margin-top:1px;}
+
+/* ========== SUB HUD (gold & timer) ========== */
+#sub-hud{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:3px 12px;background:#0f1822;
+  border-bottom:1px solid rgba(255,255,255,.04);
+  font-size:11px;flex:0 0 auto;
+}
+.gold{
+  font-family:"Zen Old Mincho",serif;font-weight:900;letter-spacing:.08em;
+  color:var(--gold);font-size:15px;display:flex;align-items:baseline;gap:6px;
+}
+.gold .g-label{font-family:"Zen Kaku Gothic New",sans-serif;font-size:9px;letter-spacing:.3em;color:rgba(184,137,43,.7);font-weight:700;}
+.timer{
+  font-family:"Zen Old Mincho",serif;font-weight:700;color:rgba(236,228,211,.6);
+  font-size:12px;letter-spacing:.15em;
+}
+#upgrade-btn{
+  background:linear-gradient(180deg,rgba(184,137,43,.12),rgba(184,137,43,.04));
+  border:1px solid rgba(184,137,43,.35);
+  color:var(--gold);
+  padding:3px 10px;cursor:pointer;
+  display:inline-flex;gap:7px;align-items:baseline;
+  font-family:"Zen Kaku Gothic New",sans-serif;
+  transition:background .12s,border-color .12s;
+}
+#upgrade-btn .u-label{
+  font-family:"Zen Old Mincho",serif;font-weight:900;
+  font-size:11px;letter-spacing:.15em;
+}
+#upgrade-btn .u-lv{
+  font-size:9px;opacity:.75;letter-spacing:.1em;font-weight:700;
+}
+#upgrade-btn .u-cost{
+  font-family:"Zen Old Mincho",serif;font-weight:900;
+  font-size:12px;letter-spacing:.02em;
+}
+#upgrade-btn.affordable{
+  background:linear-gradient(180deg,rgba(184,137,43,.38),rgba(184,137,43,.22));
+  border-color:rgba(184,137,43,.9);
+  color:#f0c669;
+}
+#upgrade-btn.affordable:active{background:rgba(184,137,43,.5);}
+#upgrade-btn.maxed{
+  opacity:.4;cursor:default;pointer-events:none;
+}
+#upgrade-btn.maxed .u-cost{display:none;}
+#fs-btn{
+  background:none;border:1px solid rgba(236,228,211,.3);color:rgba(236,228,211,.7);
+  font-size:14px;padding:1px 5px;cursor:pointer;line-height:1;
+}
+#fs-btn:active{background:rgba(255,255,255,.1);}
+
+/* ========== CANVAS ========== */
+#stage{
+  position:relative;flex:1 1 auto;min-height:0;
+  background:var(--paper);overflow:hidden;
+}
+#game{display:block;width:100%;height:100%;}
+#toast{
+  position:absolute;top:8px;left:50%;transform:translateX(-50%);
+  background:rgba(11,11,11,.85);color:var(--paper);
+  padding:6px 14px;font-size:11px;letter-spacing:.1em;
+  font-family:"Zen Kaku Gothic New",sans-serif;font-weight:700;
+  opacity:0;pointer-events:none;transition:opacity .3s;
+  border-left:2px solid var(--enemy-soft);
+}
+#toast.show{opacity:1;}
+
+/* ========== BUTTON GRID ========== */
+#controls{
+  flex:0 0 auto;
+  background:linear-gradient(180deg,#14202b,#0a1118);
+  border-top:1px solid rgba(255,255,255,.06);
+  padding:6px 6px 8px;
+  padding-bottom:calc(8px + env(safe-area-inset-bottom));
+}
+.btn-row{display:grid;gap:4px;margin-bottom:4px;}
+.btn-row:first-child{grid-template-columns:repeat(6,1fr);}
+.btn-row:last-child{grid-template-columns:repeat(6,1fr);margin-bottom:0;}
+.ubtn{
+  position:relative;background:#1e2d3b;
+  border:1px solid rgba(255,255,255,.08);
+  color:var(--paper);padding:4px 2px 3px;
+  font-family:"Zen Kaku Gothic New",sans-serif;
+  cursor:pointer;overflow:hidden;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  min-height:64px;
+  transition:background .1s;
+}
+.ubtn:active{background:#2b4055;}
+.ubtn.disabled{opacity:.4;}
+.ubtn.affordable{background:#24384a;}
+.ubtn.affordable:active{background:#36567a;}
+.ubtn.holding{background:#3a5875;outline:1px solid rgba(236,228,211,.35);}
+.ubtn .icon{
+  width:26px;height:20px;margin-bottom:2px;
+  display:flex;align-items:center;justify-content:center;
+}
+.ubtn .icon svg{width:100%;height:100%;fill:var(--paper);}
+.ubtn .name{font-size:9px;font-weight:700;letter-spacing:.02em;line-height:1;margin-bottom:2px;}
+.ubtn .tag{
+  font-size:7.5px;letter-spacing:.04em;line-height:1;
+  color:rgba(236,228,211,.62);font-weight:700;margin-bottom:2px;
+  padding:1px 3px;background:rgba(0,0,0,.22);
+}
+.ubtn .cost{font-family:"Zen Old Mincho",serif;font-size:10px;font-weight:900;color:var(--gold);letter-spacing:.05em;line-height:1;}
+.ubtn .cooldown-overlay{
+  position:absolute;inset:0;background:rgba(0,0,0,.6);
+  display:flex;align-items:center;justify-content:center;
+  font-family:"Zen Old Mincho",serif;font-weight:900;font-size:14px;
+  color:var(--paper);pointer-events:none;
+}
+.ubtn .tier{
+  position:absolute;top:2px;left:2px;
+  font-size:7px;letter-spacing:.1em;font-weight:900;
+  color:rgba(236,228,211,.5);
+}
+
+/* unique accents by layer */
+.ubtn[data-layer="air"]{border-top:1px solid rgba(136,195,245,.35);}
+.ubtn[data-layer="underwater"]{border-top:1px solid rgba(80,140,200,.4);}
+.ubtn[data-layer="surface"]{border-top:1px solid rgba(236,228,211,.25);}
+.ubtn[data-layer="defense"]{border-top:1px solid rgba(184,137,43,.55);}
+
+/* ========== OVERLAY ========== */
+#overlay{
+  position:absolute;inset:0;display:none;
+  align-items:center;justify-content:center;
+  background:rgba(5,10,15,.88);backdrop-filter:blur(4px);
+  z-index:10;
+}
+#overlay.show{display:flex;}
+.panel{
+  background:var(--paper);color:var(--ink);
+  padding:34px 36px;max-width:340px;width:88%;
+  text-align:center;position:relative;
+  box-shadow:0 40px 80px -20px rgba(0,0,0,.7);
+}
+.panel::before,.panel::after{content:"";position:absolute;background:var(--ink);}
+.panel::before{top:6px;left:6px;right:6px;height:1px;}
+.panel::after{bottom:6px;left:6px;right:6px;height:1px;}
+.panel h1{
+  font-family:"Zen Old Mincho",serif;font-weight:900;
+  font-size:42px;letter-spacing:.2em;margin-bottom:6px;
+}
+.panel .sub{
+  font-family:"Zen Kaku Gothic New",sans-serif;font-weight:500;
+  font-size:10px;letter-spacing:.5em;color:rgba(11,11,11,.55);
+  margin-bottom:22px;
+}
+.panel p{font-size:12px;line-height:1.7;margin-bottom:18px;color:rgba(11,11,11,.75);letter-spacing:.05em;}
+.panel button{
+  background:var(--ink);color:var(--paper);
+  border:none;padding:12px 28px;font-size:12px;
+  font-family:"Zen Kaku Gothic New",sans-serif;font-weight:900;
+  letter-spacing:.4em;cursor:pointer;
+}
+.panel button:active{background:var(--enemy);}
+.panel .hint{
+  font-family:"Zen Kaku Gothic New",sans-serif;
+  font-size:10px;color:rgba(11,11,11,.5);margin-top:16px;
+  letter-spacing:.1em;line-height:1.6;
+}
+.result-victory h1{color:var(--ink);}
+.result-defeat h1{color:var(--enemy);}
+
+/* Small screens */
+@media (max-width:360px){
+  .ubtn .name{font-size:8px;}
+  .ubtn .cost{font-size:9px;}
+  .ubtn{min-height:58px;}
+  .hud-title{font-size:13px;letter-spacing:.2em;}
+}
+
+/* Landscape: compress HUD & buttons to maximize canvas */
+@media (orientation:landscape) and (max-height:560px){
+  #hud{padding:3px 14px 2px;}
+  .hud-title{font-size:12px;letter-spacing:.18em;}
+  .hud-title .mini{display:none;}
+  .hud-bar-track{height:11px;}
+  .hud-hp{font-size:12px;}
+  #sub-hud{padding:2px 14px;}
+  .gold{font-size:13px;}
+  .gold .g-label{font-size:8px;}
+  .timer{font-size:10px;}
+  #controls{padding:3px 4px 5px;padding-bottom:calc(5px + env(safe-area-inset-bottom));}
+  .btn-row{gap:3px;margin-bottom:3px;}
+  .ubtn{min-height:48px;padding:2px 2px 2px;}
+  .ubtn .icon{width:22px;height:16px;margin-bottom:1px;}
+  .ubtn .name{font-size:9px;margin-bottom:1px;}
+  .ubtn .tag{font-size:7px;padding:0 2px;margin-bottom:1px;}
+  .ubtn .cost{font-size:9px;}
+  .ubtn .tier{font-size:6px;top:1px;left:2px;}
+}
+
+/* ========== INFO SHEET (long-press popup) ========== */
+#info-sheet{
+  position:absolute;left:0;right:0;bottom:0;
+  background:var(--paper);color:var(--ink);
+  padding:18px 22px 26px;z-index:20;
+  border-top:2px solid var(--ink);
+  transform:translateY(101%);
+  transition:transform .25s cubic-bezier(.2,.8,.2,1);
+  box-shadow:0 -20px 40px -10px rgba(0,0,0,.5);
+  max-height:62%;overflow-y:auto;
+}
+#info-sheet.show{transform:translateY(0);}
+.info-head{display:flex;gap:14px;align-items:center;margin-bottom:10px;}
+.info-icon{
+  width:54px;height:38px;flex:0 0 54px;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(11,11,11,.06);
+}
+.info-icon svg{width:80%;height:80%;fill:var(--ink);}
+.info-title{flex:1;min-width:0;}
+.info-name{font-family:"Zen Old Mincho",serif;font-weight:900;font-size:20px;letter-spacing:.08em;}
+.info-tier{font-size:9px;letter-spacing:.25em;color:rgba(11,11,11,.5);margin-top:3px;font-weight:700;}
+.info-cost{
+  font-family:"Zen Old Mincho",serif;font-weight:900;
+  font-size:22px;color:var(--gold);letter-spacing:.05em;
+  display:flex;align-items:baseline;gap:3px;
+}
+.info-cost small{font-size:9px;color:rgba(184,137,43,.7);letter-spacing:.2em;font-family:"Zen Kaku Gothic New",sans-serif;}
+.info-role{
+  font-size:12px;line-height:1.55;color:rgba(11,11,11,.8);
+  padding:4px 0 12px;letter-spacing:.04em;
+  border-bottom:1px solid rgba(11,11,11,.15);
+}
+.info-stats{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:4px;padding:12px 0;
+  border-bottom:1px solid rgba(11,11,11,.15);
+}
+.info-stats > div{display:flex;flex-direction:column;align-items:center;gap:2px;}
+.info-stats .lab{font-size:8px;letter-spacing:.25em;color:rgba(11,11,11,.55);font-weight:700;}
+.info-stats .val{font-family:"Zen Old Mincho",serif;font-weight:900;font-size:17px;}
+.info-match{padding:10px 0 0;}
+.m-row{display:flex;gap:10px;font-size:11.5px;padding:4px 0;line-height:1.5;align-items:baseline;}
+.m-row .lbl{flex:0 0 60px;font-size:9px;font-weight:900;letter-spacing:.15em;}
+.m-row.strong .lbl{color:#1d5d2e;}
+.m-row.weak .lbl{color:var(--enemy);}
+.info-hint{
+  text-align:center;font-size:9px;letter-spacing:.3em;
+  color:rgba(11,11,11,.4);margin-top:14px;padding-top:8px;
+  border-top:1px solid rgba(11,11,11,.08);
+  font-weight:700;
+}
+@media (orientation:landscape) and (max-height:560px){
+  #info-sheet{padding:14px 20px 16px;max-height:85%;}
+  .info-head{margin-bottom:6px;}
+  .info-icon{width:44px;height:30px;flex:0 0 44px;}
+  .info-name{font-size:17px;}
+  .info-role{padding:3px 0 8px;font-size:11px;}
+  .info-stats{padding:8px 0;}
+  .info-stats .val{font-size:15px;}
+  .info-match{padding-top:6px;}
+  .info-hint{margin-top:8px;padding-top:5px;}
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- Top HUD: base HP bars -->
+  <div id="hud">
+    <div class="hud-side">
+      <span class="hud-label">自陣</span>
+      <div class="hud-bar-wrap">
+        <div class="hud-bar-track"><div class="hud-bar-fill ally" id="ally-hp"></div></div>
+      </div>
+      <span class="hud-hp" id="ally-hp-text">1000</span>
+    </div>
+    <div class="hud-title">黒海戦記<span class="mini">NAVAL WAR</span></div>
+    <div class="hud-side right">
+      <span class="hud-hp" id="enemy-hp-text">1000</span>
+      <div class="hud-bar-wrap">
+        <div class="hud-bar-track"><div class="hud-bar-fill enemy" id="enemy-hp"></div></div>
+      </div>
+      <span class="hud-label">敵陣</span>
+    </div>
+  </div>
+
+  <!-- Sub HUD: gold & timer -->
+  <div id="sub-hud">
+    <div class="gold"><span class="g-label">資金</span><span id="gold">100</span></div>
+    <button id="upgrade-btn" type="button">
+      <span class="u-label">金鉱</span>
+      <span class="u-lv">Lv<span id="mine-lv">0</span>/7</span>
+      <span class="u-cost">¥<span id="mine-cost">150</span></span>
+    </button>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <div class="timer" id="timer">00:00</div>
+      <button id="fs-btn">⛶</button>
+    </div>
+  </div>
+
+  <!-- Game canvas -->
+  <div id="stage">
+    <canvas id="game"></canvas>
+    <div id="toast"></div>
+  </div>
+
+  <!-- Unit buttons -->
+  <div id="controls">
+    <div class="btn-row" id="row1"></div>
+    <div class="btn-row" id="row2"></div>
+  </div>
+
+  <!-- Start/Result overlay -->
+  <div id="overlay" class="show">
+    <div class="panel" id="panel">
+      <h1>黒海戦記</h1>
+      <div class="sub">NAVAL WAR 2026</div>
+      <p>左の自陣から艦艇・戦闘機を出撃させ、<br>敵基地を撃破せよ。</p>
+      <p style="font-size:11px;color:rgba(11,11,11,.6);">資金は時間で増え、敵撃破でも獲得。<br>金鉱を強化すれば収入が加速する。</p>
+      <button id="start-btn">出撃</button>
+      <div class="hint">タップで出撃 / 長押しでユニット詳細 / 金鉱ボタンで収入強化</div>
+    </div>
+  </div>
+
+  <!-- Unit info bottom sheet (long-press) -->
+  <div id="info-sheet"></div>
+
+</div>
+
+<script>
+/* =====================================================================
+   黒海戦記 — Naval War (HTML5 Canvas)
+   ===================================================================== */
+
+/* ---------- Unit definitions ---------- */
+const UNITS = {
+  torpedo_bomber: {
+    name:'雷撃機', short:'雷撃機', layer:'air', tier:'IV', tag:'貫通雷撃',
+    cost:500, hp:200, dmg:100, speed:21, range:130, atk:3.0, reward:180,
+    targets:['surface','underwater','base'], size:13,
+    piercing:true,
+    dmgVs:{ battleship:2.0, carrier:2.0, yamato:2.0, submarine:1.5, flagship:1.5 },
+    shape:'torpedo_bomber'
+  },
+  destroyer: {
+    name:'駆逐艦', short:'駆逐', layer:'surface', tier:'II', tag:'対潜×2',
+    cost:80, hp:250, dmg:18, speed:6, range:120, atk:1.0, reward:30,
+    targets:['surface','underwater','air'], size:15,
+    dmgVs:{ submarine:2.0 },
+    shape:'destroyer'
+  },
+  battleship: {
+    name:'戦艦', short:'戦艦', layer:'surface', tier:'IV', tag:'重砲',
+    cost:300, hp:1200, dmg:200, speed:2, range:200, atk:7.0, reward:120,
+    targets:['surface','base'], size:22,
+    shape:'battleship'
+  },
+  yamato: {
+    name:'戦艦大和', short:'大和', layer:'surface', tier:'VI', tag:'超艦',
+    cost:700, hp:1800, dmg:85, speed:3, range:250, atk:2.0, reward:280,
+    targets:['surface','base'], size:26,
+    shots:3,
+    dmgVs:{ battleship:1.5, carrier:1.5, destroyer:1.5, aa:1.5, coastal:1.5 },
+    shape:'yamato'
+  },
+  landing: {
+    name:'揚陸艇', short:'揚陸', layer:'surface', tier:'II', tag:'特攻',
+    cost:120, hp:200, dmg:0, speed:5, range:0, atk:0, reward:50,
+    targets:[], targetBase:true, baseDamage:600, size:13,
+    shape:'landing'
+  },
+  missile: {
+    name:'ﾐｻｲﾙ艦', short:'ﾐｻｲﾙ', layer:'surface', tier:'III', tag:'長射程',
+    cost:180, hp:160, dmg:38, speed:2, range:360, atk:2.5, reward:75,
+    targets:['surface','base'], size:15, projectile:'missile',
+    shape:'missile'
+  },
+  carrier: {
+    name:'空母', short:'空母', layer:'surface', tier:'V', tag:'制空支援',
+    cost:360, hp:550, dmg:0, speed:4, range:0, atk:0, reward:150,
+    targets:[], spawns:'random', spawnInterval:6.0, size:25,
+    shape:'carrier'
+  },
+  submarine: {
+    name:'潜水艦', short:'潜水', layer:'underwater', tier:'II', tag:'雷撃',
+    cost:110, hp:100, dmg:32, speed:8, range:110, atk:1.5, reward:45,
+    targets:['surface','base'], size:13,
+    dmgVs:{ battleship:1.5, carrier:1.5, yamato:1.5 },
+    shape:'submarine'
+  },
+  fighter: {
+    name:'戦闘機', short:'戦闘機', layer:'air', tier:'II', tag:'制空',
+    cost:100, hp:80, dmg:24, baseDmg:10, speed:19, range:100, atk:0.6, reward:35,
+    targets:['air','surface','underwater','base'], size:10,
+    dmgVs:{ submarine:1.75, bomber:1.5 },
+    shape:'fighter'
+  },
+  bomber: {
+    name:'爆撃機', short:'爆撃', layer:'air', tier:'III', tag:'艦攻',
+    cost:190, hp:150, dmg:44, speed:8, range:85, atk:1.6, reward:80,
+    targets:['surface','base'], size:13,
+    dmgVs:{ battleship:1.5, carrier:1.5, yamato:1.5 },
+    shape:'bomber'
+  },
+  aa: {
+    name:'対空砲', short:'対空砲', layer:'defense', tier:'D', tag:'対空',
+    cost:110, hp:500, dmg:20, speed:0, range:260, atk:0.5, reward:50,
+    targets:['air'], stationary:true, size:16,
+    dmgVs:{ bomber:1.5 },
+    shape:'aa'
+  },
+  coastal: {
+    name:'沿岸砲', short:'大砲', layer:'defense', tier:'D', tag:'対艦',
+    cost:140, hp:700, dmg:32, speed:0, range:310, atk:1.1, reward:60,
+    targets:['surface'], stationary:true, size:16,
+    dmgVs:{ battleship:1.5, carrier:1.5, yamato:1.5 },
+    shape:'coastal'
+  },
+  flagship: {
+    name:'旗艦', short:'旗艦', layer:'surface', tier:'★', tag:'BOSS',
+    cost:0, hp:4000, dmg:120, speed:2, range:270, atk:2.5, reward:500,
+    targets:['surface','base'], size:32,
+    shots:5, boss:true,
+    dmgVs:{ yamato:1.2, battleship:1.2 },
+    shape:'yamato'
+  }
+};
+
+const ROW1 = ['destroyer','submarine','landing','missile','battleship','yamato'];
+const ROW2 = ['fighter','bomber','carrier','torpedo_bomber','aa','coastal'];
+
+/* ---------- Unit info (for long-press popup) ---------- */
+const UNIT_INFO = {
+  torpedo_bomber:{ role:'対艦専用の重雷撃機（コスト500）。大型艦に2倍ダメージ。空母のランダム射出でも稀に登場。', strong:'戦艦×2・空母×2・大和×2・潜水×1.5', weak:'対空砲・戦闘機（空中戦不可）' },
+  destroyer: { role:'水上・水中・空すべてに対応。対潜特化で潜水艦に2倍ダメージ。',  strong:'潜水艦×2・戦闘機',       weak:'戦艦・ミサイル艦' },
+  battleship:{ role:'重砲戦艦。7秒に1発200ダメージの超高火力砲。一撃が重い。',       strong:'一撃200ダメ・射程200・基地攻撃', weak:'速攻で包囲されやすい' },
+  yamato:    { role:'1800HP・3連射の最強艦。一度に3つの目標を同時砲撃。大型艦・防衛砲に1.5倍。', strong:'戦艦・空母・駆逐・対空砲・大砲すべて×1.5', weak:'雷撃機・爆撃機・潜水艦に1.5倍食らう' },
+  landing:   { role:'戦闘力はゼロ。敵基地に辿り着くと特大ダメージ（400）を与える特攻艇。', strong:'敵基地に特大ダメージ',   weak:'自衛手段なし・全艦に弱い' },
+  missile:   { role:'超長射程（360）で敵基地を遠距離から砲撃できる戦略級艦。',      strong:'基地・水上艦',         weak:'戦闘機・爆撃機・接近戦' },
+  carrier:   { role:'戦闘機60%・爆撃機28%・雷撃機12%をランダム射出。長期戦で真価を発揮。',  strong:'継戦力・ランダム性',       weak:'爆撃機・潜水艦・大砲（全部1.5倍食らう）' },
+  submarine: { role:'水中から奇襲。大型艦（戦艦・空母・大和）に1.5倍ダメージ。',           strong:'戦艦×1.5・空母×1.5・大和×1.5', weak:'駆逐艦に2倍食らう・雷撃機に1.5倍' },
+  fighter:   { role:'高速戦闘機。潜水艦×1.75、爆撃機×1.5。対基地は低火力。',       strong:'潜水艦×1.75・爆撃機×1.5', weak:'対空砲に1.5倍食らう' },
+  bomber:    { role:'重爆撃機。戦艦・空母・大和に1.5倍ダメージ。',                        strong:'戦艦×1.5・空母×1.5・大和×1.5・基地', weak:'戦闘機・対空砲（両方から1.5倍食らう）' },
+  aa:        { role:'固定対空砲。爆撃機に1.5倍ダメージ。基地に4基まで。',           strong:'戦闘機・爆撃機×1.5・雷撃機',      weak:'水上艦・潜水艦には無力' },
+  coastal:   { role:'固定大砲（射程310）。戦艦・空母・大和に1.5倍ダメージ。基地に4基まで。', strong:'水上艦・戦艦×1.5・空母×1.5・大和×1.5', weak:'航空機・潜水艦には無力' }
+};
+
+/* ---------- Game state ---------- */
+const G = {
+  canvas:null, ctx:null, W:0, H:0,
+  skyY:0, surfaceY:0, deepY:0,
+  running:false, over:false,
+  t:0, lastTick:0,
+  ally:{ gold:100, hp:8000, maxHp:8000, income:8, defenses:[] },
+  enemy:{ gold:100, hp:8000, maxHp:8000, income:6, defenses:[] },
+  units:[], projectiles:[], mines:[], fx:[],
+  aiTimer:3.0,
+  aiBurstLeft:0,
+  difficulty:0,
+  strategy:'balanced',
+  strategyTimer:18,
+  enemyRecent:[],
+  bossSpawned:false, // last N enemy unit types, used to suppress repetition
+  nextId:1,
+  mineLvl:0,
+  MINE_COSTS:[150, 300, 450, 650, 850, 1200, 1600],
+  MINE_INCOME_PER_LVL:4
+};
+
+/* ---------- Enemy strategy bonuses ---------- */
+/* Each mode amplifies certain unit weights, rotated every 10-20s. */
+const STRATEGIES = {
+  balanced: {},
+  air:      { fighter:3, bomber:2.5, carrier:2, aa:1, torpedo_bomber:2 },
+  heavy:    { battleship:3, missile:2.5, destroyer:1.3, coastal:1 },
+  sub:      { submarine:3.8, destroyer:1, fighter:0.5 },
+  swarm:    { destroyer:3.5, fighter:2.2, landing:1.2, submarine:1 },
+  special:  { carrier:3, landing:2.8, missile:1.5, bomber:1 }
+};
+
+/* ---------- Setup ---------- */
+function setupCanvas(){
+  const c = G.canvas = document.getElementById('game');
+  G.ctx = c.getContext('2d');
+  resize();
+  window.addEventListener('resize', resize);
+}
+function resize(){
+  const c = G.canvas;
+  const rect = c.parentElement.getBoundingClientRect();
+  const dpr = Math.min(window.devicePixelRatio||1, 2);
+  c.width = rect.width * dpr;
+  c.height = rect.height * dpr;
+  c.style.width = rect.width+'px';
+  c.style.height = rect.height+'px';
+  G.ctx.setTransform(dpr,0,0,dpr,0,0);
+  G.W = rect.width;
+  G.H = rect.height;
+  // layer bands
+  G.skyY     = 0;
+  G.skyBand  = G.H * 0.33;   // air layer height
+  G.surfaceY = G.skyBand;    // sea starts here
+  G.surfaceBand = G.H * 0.30; // surface band
+  G.deepY = G.surfaceY + G.surfaceBand;
+  G.deepBand = G.H - G.deepY;
+}
+
+/* ---------- Unit creation ---------- */
+function spawn(type, side){
+  const tpl = UNITS[type];
+  const state = G[side];
+  if(state.gold < tpl.cost) return false;
+  state.gold -= tpl.cost;
+
+  // Stationary defenses are placed at base side (max 3 per base)
+  if(tpl.stationary){
+    if(state.defenses.length >= 4){
+      state.gold += tpl.cost;
+      toast('防衛砲台は4基まで');
+      return false;
+    }
+    const baseX = side==='ally' ? 28 : G.W-28;
+    const slot = state.defenses.length;
+    const y = 10 + slot*22;
+    const u = makeUnit(type, side, baseX, y);
+    u.stationary = true;
+    state.defenses.push(u);
+    G.units.push(u);
+    return true;
+  }
+
+  // Normal unit: spawn from base at appropriate layer
+  const u = makeUnit(type, side);
+  G.units.push(u);
+  return true;
+}
+function makeUnit(type, side, forcedX, forcedY){
+  const tpl = UNITS[type];
+  let x, y;
+  if(forcedX!==undefined){ x=forcedX; y=forcedY; }
+  else {
+    x = side==='ally' ? 40 : G.W-40;
+    if(tpl.layer==='air'){
+      y = G.skyY + 18 + Math.random()*(G.skyBand-36);
+    } else if(tpl.layer==='surface'){
+      y = G.surfaceY + 12 + Math.random()*(G.surfaceBand-24);
+    } else if(tpl.layer==='underwater'){
+      y = G.deepY + 12 + Math.random()*(G.deepBand-24);
+    } else y = G.surfaceY+20;
+  }
+  return {
+    id: G.nextId++,
+    type, tpl, side,
+    x, y,
+    hp: tpl.hp, maxHp: tpl.hp,
+    cost: tpl.cost,
+    atkCd: 0.3 + Math.random()*0.3,
+    spawnCd: tpl.spawnInterval||0,
+    layCd: tpl.layInterval||0,
+    bobPhase: Math.random()*Math.PI*2,
+    facing: side==='ally'?1:-1
+  };
+}
+
+/* ---------- Main loop ---------- */
+function loop(ts){
+  if(!G.running) return;
+  if(!G.lastTick) G.lastTick = ts;
+  let dt = Math.min((ts-G.lastTick)/1000, 0.05);
+  G.lastTick = ts;
+  if(!G.over){
+    update(dt);
+  }
+  render();
+  requestAnimationFrame(loop);
+}
+
+function update(dt){
+  G.t += dt;
+  G.difficulty = G.t/180; // reaches 1.0 at 3 min, keeps climbing past
+  const dRaw = G.difficulty;
+  const d = Math.min(1, dRaw); // used for small-unit weight calculations
+  const dBig = Math.min(2, dRaw); // keeps scaling big-unit weights up to 6min
+
+  // Strategy rotation — keeps enemy unit mix varied
+  G.strategyTimer -= dt;
+  if(G.strategyTimer <= 0) pickEnemyStrategy();
+
+  // Rubber band: enemy gets stronger as its base HP drops
+  // At 100% HP: no bonus. At 0% HP: +20/s income, 30% faster spawns, 25% more bursts.
+  const hpStress = Math.max(0, 1 - G.enemy.hp/G.enemy.maxHp);
+
+  // Income (hybrid: auto regen + gold mine upgrades + difficulty + rubber band + frenzy)
+  const mineBonus = G.mineLvl * G.MINE_INCOME_PER_LVL;
+  const allyIncome = 8 + mineBonus + d*3;
+  const frenzy = Math.max(0, (G.t - 210) / 60); // kicks in at 3:30, +1 per min
+  const enemyIncome = 11 + dRaw*16 + frenzy*10 + hpStress*20;
+  G.ally.gold = Math.min(G.ally.gold + allyIncome*dt, 9999);
+  G.enemy.gold = Math.min(G.enemy.gold + enemyIncome*dt, 9999);
+
+  // Enemy AI — faster spawns with a floor, plus bursts, plus rubber band
+  G.aiTimer -= dt;
+  if(G.aiTimer <= 0){
+    enemyAI();
+    if(G.aiBurstLeft > 0){
+      G.aiBurstLeft--;
+      G.aiTimer = 0.4 + Math.random()*0.4; // quick follow-up
+    } else {
+      // Chance to start a burst (more likely as difficulty climbs or enemy is damaged)
+      if(Math.random() < 0.16 + dRaw*0.13 + hpStress*0.25){
+        G.aiBurstLeft = 1 + Math.floor(Math.random()*2); // 1-2 extras
+      }
+      let minGap = Math.max(0.9, 4.0 - dRaw*2.6);
+      let maxGap = Math.max(1.4, 5.5 - dRaw*3.1);
+      // Rubber band: up to 30% faster spawns when damaged
+      const speedUp = 1 - hpStress*0.3;
+      minGap *= speedUp;
+      maxGap *= speedUp;
+      G.aiTimer = minGap + Math.random()*(maxGap-minGap);
+    }
+  }
+
+  // Boss flagship spawns at 5 minutes (once only)
+  if(!G.bossSpawned && G.t >= 300){
+    G.bossSpawned = true;
+    const boss = makeUnit('flagship', 'enemy');
+    G.units.push(boss);
+    toast('⚠ 旗艦接近！');
+  }
+
+  // Unit updates
+  for(let i=G.units.length-1;i>=0;i--){
+    const u = G.units[i];
+    updateUnit(u, dt);
+    if(u.hp<=0){
+      // per-unit kill reward to the opposite side
+      const killer = u.side==='ally' ? 'enemy' : 'ally';
+      const reward = (u.tpl.reward !== undefined) ? u.tpl.reward : Math.floor(u.cost*0.25);
+      G[killer].gold += reward;
+      pushFX('explode', u.x, u.y, u.tpl.size);
+      if(u.stationary){
+        const arr = G[u.side].defenses;
+        const idx = arr.indexOf(u);
+        if(idx>=0) arr.splice(idx,1);
+      }
+      G.units.splice(i,1);
+    }
+  }
+
+  // Projectiles
+  for(let i=G.projectiles.length-1;i>=0;i--){
+    const p = G.projectiles[i];
+    updateProjectile(p, dt);
+    if(p.dead) G.projectiles.splice(i,1);
+  }
+
+  // Mines
+  for(let i=G.mines.length-1;i>=0;i--){
+    const m = G.mines[i];
+    m.t += dt;
+    // Look for enemy surface unit nearby
+    for(const u of G.units){
+      if(u.side === m.side) continue;
+      if(u.tpl.layer !== 'surface') continue;
+      const d = Math.hypot(u.x-m.x, u.y-m.y);
+      if(d < 20){
+        u.hp -= 70;
+        pushFX('explode', m.x, m.y, 20);
+        m.dead = true;
+        break;
+      }
+    }
+    if(m.t > 25) m.dead = true; // expire
+    if(m.dead) G.mines.splice(i,1);
+  }
+
+  // FX
+  for(let i=G.fx.length-1;i>=0;i--){
+    G.fx[i].t += dt;
+    if(G.fx[i].t > G.fx[i].life) G.fx.splice(i,1);
+  }
+
+  // Win check
+  if(G.ally.hp <= 0){
+    G.ally.hp = 0; endGame(false);
+  } else if(G.enemy.hp <= 0){
+    G.enemy.hp = 0; endGame(true);
+  }
+  updateHUD();
+}
+
+/* ---------- Unit AI / movement ---------- */
+function updateUnit(u, dt){
+  const tpl = u.tpl;
+
+  // Single atkCd decrement per tick
+  if(u.atkCd > 0) u.atkCd -= dt;
+
+  // carrier: spawn random aircraft (fighter 60%, bomber 28%, torpedo_bomber 12%)
+  if(tpl.spawns){
+    u.spawnCd -= dt;
+    if(u.spawnCd <= 0){
+      const fy = G.skyY + G.skyBand * (0.3 + Math.random()*0.4);
+      const fx = u.x + (u.facing||1)*12;
+      let spawnType = tpl.spawns;
+      if(spawnType === 'random'){
+        const r = Math.random();
+        spawnType = r < 0.60 ? 'fighter' : r < 0.88 ? 'bomber' : 'torpedo_bomber';
+      }
+      const f = makeUnit(spawnType, u.side, fx, fy);
+      G.units.push(f);
+      u.spawnCd = tpl.spawnInterval;
+    }
+  }
+
+  // minelayer: drop mines periodically while advancing
+  if(tpl.lays){
+    u.layCd -= dt;
+    if(u.layCd <= 0){
+      G.mines.push({ x:u.x, y:u.y+6, side:u.side, t:0, dead:false });
+      u.layCd = tpl.layInterval;
+    }
+  }
+
+  // Landing craft: just head to enemy base
+  if(tpl.targetBase){
+    const dir = u.side==='ally' ? 1 : -1;
+    u.x += dir * tpl.speed * dt;
+    const baseX = u.side==='ally' ? G.W-12 : 12;
+    if((dir===1 && u.x>=baseX) || (dir===-1 && u.x<=baseX)){
+      const enemySide = u.side==='ally' ? 'enemy' : 'ally';
+      G[enemySide].hp -= tpl.baseDamage;
+      pushFX('explode', baseX, u.y, 30);
+      u.hp = 0;
+    }
+    return;
+  }
+
+  // Stationary defenses: find target in range and fire
+  if(tpl.stationary){
+    let best=null, bestD=tpl.range;
+    for(const o of G.units){
+      if(o.side===u.side) continue;
+      if(!tpl.targets.includes(o.tpl.layer)) continue;
+      const d = Math.hypot(o.x-u.x, o.y-u.y);
+      if(d<bestD){bestD=d;best=o;}
+    }
+    if(best && u.atkCd<=0){
+      fireProjectile(u, best);
+      u.atkCd = tpl.atk;
+    }
+    return;
+  }
+
+  // Find target (unit)
+  const target = findTarget(u);
+  let inCombat = false;
+
+  if(target){
+    const dx = target.x - u.x;
+    const dy = target.y - u.y;
+    const dist = Math.hypot(dx,dy);
+    if(dist > tpl.range*0.92){
+      // move toward it
+      u.x += (dx/dist)*tpl.speed*dt;
+      if(tpl.layer==='air' || tpl.layer==='underwater'){
+        u.y += (dy/dist)*tpl.speed*0.3*dt;
+      }
+      u.facing = Math.sign(dx) || u.facing;
+    } else {
+      // in range: fire if cooldown ready
+      inCombat = true;
+      if(u.atkCd<=0){
+        const shots = tpl.shots || 1;
+        if(shots > 1){
+          // Find multiple nearest enemy targets in range
+          const candidates = [];
+          for(const other of G.units){
+            if(other.side === u.side) continue;
+            const oLayer = other.tpl.layer;
+            if(oLayer === 'defense'){
+              if(!tpl.targets.includes('surface')) continue;
+            } else {
+              if(!tpl.targets.includes(oLayer)) continue;
+            }
+            const d = Math.hypot(other.x-u.x, other.y-u.y);
+            if(d > tpl.range) continue;
+            candidates.push({u:other, d});
+          }
+          candidates.sort((a,b)=>a.d-b.d);
+          const picks = candidates.slice(0, shots);
+          if(picks.length === 0){
+            fireProjectile(u, target);
+          } else {
+            for(const p of picks) fireProjectile(u, p.u);
+          }
+        } else {
+          fireProjectile(u, target);
+        }
+        u.atkCd = tpl.atk;
+      }
+      // Push forward slowly even while engaged, to break mid-map stalemates
+      const dir = u.side==='ally' ? 1 : -1;
+      u.x += dir * tpl.speed * 0.25 * dt;
+    }
+  } else {
+    // no target: move toward enemy base
+    const dir = u.side==='ally' ? 1 : -1;
+    u.x += dir * tpl.speed * dt;
+    u.facing = dir;
+  }
+
+  // Clamp to layer
+  if(tpl.layer==='air'){
+    u.y = Math.max(G.skyY+12, Math.min(G.surfaceY-8, u.y));
+  } else if(tpl.layer==='surface'){
+    u.y = Math.max(G.surfaceY+8, Math.min(G.deepY-10, u.y));
+  } else if(tpl.layer==='underwater'){
+    u.y = Math.max(G.deepY+10, Math.min(G.H-18, u.y));
+  }
+  // Clamp x within battlefield so units never fly off screen
+  u.x = Math.max(24, Math.min(G.W-24, u.x));
+
+  // Base attack (only if not already shooting a unit this frame)
+  if(!inCombat && tpl.targets.includes('base')){
+    const baseX = u.side==='ally' ? G.W-20 : 20;
+    const distToBase = Math.abs(u.x - baseX);
+    if(distToBase <= tpl.range && u.atkCd<=0){
+      fireProjectile(u, {x: baseX, y: u.y, isBase:true, side: u.side==='ally'?'enemy':'ally'});
+      u.atkCd = tpl.atk;
+    }
+  }
+}
+
+function findTarget(u){
+  const tpl = u.tpl;
+  if(tpl.targets.length===0) return null;
+  let best = null, bestDist = Infinity;
+  for(const other of G.units){
+    if(other.side === u.side) continue;
+    const oLayer = other.tpl.layer;
+    // Defenses count as surface-ish — hit by anything that can hit surface
+    if(oLayer === 'defense'){
+      if(!tpl.targets.includes('surface')) continue;
+    } else {
+      if(!tpl.targets.includes(oLayer)) continue;
+    }
+    const d = Math.hypot(other.x-u.x, other.y-u.y);
+    if(d < bestDist){
+      bestDist = d;
+      best = other;
+    }
+  }
+  return best;
+}
+
+function fireProjectile(u, target){
+  const tpl = u.tpl;
+  const isBaseTarget = target && target.isBase;
+  let dmg;
+  if(isBaseTarget && tpl.baseDmg !== undefined){
+    dmg = tpl.baseDmg;
+  } else {
+    const mult = (!isBaseTarget && tpl.dmgVs && target && tpl.dmgVs[target.type]) || 1;
+    dmg = tpl.dmg * mult;
+  }
+  const tx = target ? target.x : u.x + u.facing*50;
+  const ty = target ? target.y : u.y;
+  const dx = tx - u.x, dy = ty - u.y;
+  const dist = Math.hypot(dx, dy) || 1;
+  const p = {
+    x: u.x, y: u.y,
+    tx, ty,
+    dmg: tpl.piercing ? tpl.dmg : dmg,
+    speed: tpl.projectile==='missile' ? 200 : tpl.piercing ? 260 : 310,
+    side: u.side,
+    target: target,
+    type: tpl.projectile || (tpl.layer==='defense' ? 'flak' : 'shell'),
+    dead:false, t:0,
+    piercing: tpl.piercing || false,
+    dirX: dx/dist, dirY: dy/dist,
+    dmgVs: tpl.dmgVs || null,
+    hitIds: tpl.piercing ? new Set() : null,
+    baseHit: false
+  };
+  G.projectiles.push(p);
+}
+
+function updateProjectile(p, dt){
+  p.t += dt;
+
+  // Piercing torpedo: travels in fixed direction, hits all enemies along path
+  if(p.piercing){
+    p.x += p.dirX * p.speed * dt;
+    p.y += p.dirY * p.speed * dt;
+    const enemySide = p.side==='ally' ? 'enemy' : 'ally';
+    // Check all enemy units for collision
+    for(const u of G.units){
+      if(u.side !== enemySide) continue;
+      if(p.hitIds.has(u.id)) continue;
+      const d = Math.hypot(u.x - p.x, u.y - p.y);
+      if(d < 24){
+        const mult = (p.dmgVs && p.dmgVs[u.type]) || 1;
+        u.hp -= p.dmg * mult;
+        pushFX('hit', u.x, u.y, 12);
+        p.hitIds.add(u.id);
+      }
+    }
+    // Check enemy base
+    if(!p.baseHit){
+      const baseX = p.side==='ally' ? G.W-20 : 20;
+      if(Math.abs(p.x - baseX) < 24 && p.y > G.surfaceY - 30){
+        G[enemySide].hp -= p.dmg;
+        pushFX('explode', baseX, p.y, 18);
+        p.baseHit = true;
+      }
+    }
+    if(p.t > 10 || p.x < -60 || p.x > G.W+60) p.dead = true;
+    return;
+  }
+
+  // Standard projectile: track target if alive
+  if(p.target && !p.target.isBase && p.target.hp > 0){
+    p.tx = p.target.x; p.ty = p.target.y;
+  }
+  const dx = p.tx - p.x, dy = p.ty - p.y;
+  const d = Math.hypot(dx, dy);
+  if(d < 8 || p.t > 5){
+    if(p.target && p.target.isBase){
+      const side = p.side==='ally' ? 'enemy' : 'ally';
+      G[side].hp -= p.dmg;
+      pushFX('explode', p.tx, p.ty, 12);
+    } else if(p.target && p.target.hp>0){
+      p.target.hp -= p.dmg;
+      pushFX('hit', p.tx, p.ty, 6);
+    }
+    p.dead = true;
+    return;
+  }
+  p.x += (dx/d)*p.speed*dt;
+  p.y += (dy/d)*p.speed*dt;
+}
+
+function pushFX(kind, x, y, size){
+  G.fx.push({kind, x, y, size, t:0, life: kind==='explode'?0.4: 0.25});
+}
+
+/* ---------- Enemy AI ---------- */
+function pickEnemyStrategy(){
+  const opts = Object.keys(STRATEGIES);
+  let next;
+  do { next = opts[Math.floor(Math.random()*opts.length)]; }
+  while(next === G.strategy && opts.length > 1);
+  G.strategy = next;
+  G.strategyTimer = 10 + Math.random()*10; // 10-20s per mode
+}
+
+function enemyAI(){
+  const e = G.enemy;
+  const dRaw = G.difficulty;
+  const d = Math.min(1, dRaw);
+  const dBig = Math.min(2, dRaw); // big units keep scaling up to 6 min
+  const defCount = e.defenses.length;
+  const hasAA = e.defenses.some(u => u.type === 'aa');
+  const hasCoastal = e.defenses.some(u => u.type === 'coastal');
+
+  // Base weights: small units cap at 3min, big units keep scaling to 6min
+  const base = {
+    torpedo_bomber: Math.max(0, -0.5 + dBig*0.8), // rare until mid-game
+    destroyer: 3,
+    battleship: 0.5 + dBig*1.8,
+    yamato: Math.max(0, -0.5 + dBig*1.2),
+    landing: 0.6 + d*1.5,
+    missile: 0.5 + dBig*1.5,
+    carrier: 0.2 + dBig*1.1,
+    submarine: 2,
+    fighter: 2 + d,
+    bomber: 0.7 + dBig*1.5,
+    aa: 1 + d,
+    coastal: 1 + d
+  };
+
+  // Defense incentive: strongly prefer building defenses when few are owned
+  const defBoost = Math.max(0, 3 - defCount*1.5);
+  base.aa += defBoost;
+  base.coastal += defBoost;
+  if(defCount >= 1 && !hasAA) base.aa += 1.8;
+  if(defCount >= 1 && !hasCoastal) base.coastal += 1.8;
+
+  // Apply current strategy bonuses
+  const bonus = STRATEGIES[G.strategy] || {};
+  for(const k in bonus) base[k] = (base[k]||0) + bonus[k];
+
+  // Per-spawn random jitter (80–120%)
+  for(const k in base) base[k] *= 0.8 + Math.random()*0.4;
+
+  // Anti-repetition
+  const recent = G.enemyRecent;
+  for(let i=0; i<recent.length; i++){
+    const k = recent[recent.length-1-i];
+    const penalty = [0.25, 0.5, 0.75][i];
+    if(penalty !== undefined && base[k] !== undefined) base[k] *= penalty;
+  }
+
+  const pickWeighted = (keys) => {
+    let total = 0;
+    for(const k of keys) total += base[k];
+    if(total <= 0) return null;
+    let r = Math.random() * total;
+    for(const k of keys){ r -= base[k]; if(r <= 0) return k; }
+    return keys[keys.length-1];
+  };
+
+  const all = Object.keys(base).filter(k => {
+    const u = UNITS[k]; if(!u) return false;
+    if(u.stationary && defCount >= 4) return false;
+    return base[k] > 0;
+  });
+  if(all.length === 0) return;
+
+  // Pick desired unit purely by weight
+  const desired = pickWeighted(all);
+  if(desired && e.gold >= UNITS[desired].cost){
+    spawn(desired,'enemy');
+    G.enemyRecent.push(desired);
+    if(G.enemyRecent.length > 3) G.enemyRecent.shift();
+    return;
+  }
+
+  // Desired is unaffordable. 65% of the time, wait and save up.
+  if(Math.random() < 0.65){
+    G.aiTimer = 0.4 + Math.random()*0.5;
+    return;
+  }
+
+  // Otherwise, fall back to weighted pick among affordable units
+  const affordable = all.filter(k => e.gold >= UNITS[k].cost);
+  if(affordable.length === 0){
+    G.aiTimer = 0.4 + Math.random()*0.5;
+    return;
+  }
+  const fallback = pickWeighted(affordable);
+  if(fallback){
+    spawn(fallback,'enemy');
+    G.enemyRecent.push(fallback);
+    if(G.enemyRecent.length > 3) G.enemyRecent.shift();
+  }
+}
+
+/* ---------- Rendering ---------- */
+function render(){
+  const ctx = G.ctx;
+  // sky (paper)
+  ctx.fillStyle = '#ece4d3';
+  ctx.fillRect(0,0,G.W,G.skyBand);
+  drawSkyTexture(ctx);
+  // sea surface band
+  const seaGrad = ctx.createLinearGradient(0,G.surfaceY,0,G.H);
+  seaGrad.addColorStop(0,'#1f3e59');
+  seaGrad.addColorStop(0.4,'#152f46');
+  seaGrad.addColorStop(1,'#081725');
+  ctx.fillStyle = seaGrad;
+  ctx.fillRect(0,G.surfaceY,G.W,G.H-G.surfaceY);
+  drawSeaTexture(ctx);
+
+  // water line
+  ctx.strokeStyle = 'rgba(11,11,11,.35)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  for(let x=0;x<=G.W;x+=4){
+    const wy = G.surfaceY + Math.sin(x*0.04 + G.t*1.8)*1.2;
+    if(x===0) ctx.moveTo(x,wy); else ctx.lineTo(x,wy);
+  }
+  ctx.stroke();
+
+  // bases (silhouettes on sides)
+  drawBase('ally', 0);
+  drawBase('enemy', G.W);
+
+  // mines
+  for(const m of G.mines){
+    drawMine(ctx, m);
+  }
+
+  // units (back-to-front by y, roughly)
+  const sorted = G.units.slice().sort((a,b)=>a.y-b.y);
+  for(const u of sorted){
+    drawUnit(ctx, u);
+  }
+
+  // projectiles
+  for(const p of G.projectiles){
+    drawProjectile(ctx, p);
+  }
+
+  // fx
+  for(const fx of G.fx){
+    drawFX(ctx, fx);
+  }
+
+  // range indicator for defenses? skip for minimalism
+}
+
+function drawSkyTexture(ctx){
+  // subtle radar arcs from bases
+  ctx.strokeStyle='rgba(11,11,11,.05)';
+  ctx.lineWidth=1;
+  for(let r=60;r<G.W;r+=80){
+    ctx.beginPath();
+    ctx.arc(0, G.surfaceY, r, -Math.PI/2, 0);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(G.W, G.surfaceY, r, Math.PI, Math.PI*1.5);
+    ctx.stroke();
+  }
+  // faint horizontal rule
+  ctx.strokeStyle='rgba(11,11,11,.08)';
+  ctx.beginPath();
+  ctx.moveTo(0, G.skyBand*0.5);
+  ctx.lineTo(G.W, G.skyBand*0.5);
+  ctx.stroke();
+}
+function drawSeaTexture(ctx){
+  // deep zone line
+  ctx.strokeStyle='rgba(236,228,211,.08)';
+  ctx.beginPath();
+  ctx.moveTo(0,G.deepY);
+  ctx.lineTo(G.W,G.deepY);
+  ctx.stroke();
+  // faint vertical gridlines
+  ctx.strokeStyle='rgba(236,228,211,.04)';
+  ctx.lineWidth=1;
+  for(let x=40;x<G.W;x+=50){
+    ctx.beginPath();
+    ctx.moveTo(x, G.surfaceY);
+    ctx.lineTo(x, G.H);
+    ctx.stroke();
+  }
+}
+
+function drawBase(side, x){
+  const ctx = G.ctx;
+  const dir = side==='ally' ? 1 : -1;
+  const color = side==='ally' ? '#0b0b0b' : '#7a1818';
+  ctx.fillStyle = color;
+  // Tower silhouette rising from surface
+  const topY = G.surfaceY - 44;
+  ctx.beginPath();
+  ctx.moveTo(x, G.surfaceY);
+  ctx.lineTo(x, topY);
+  ctx.lineTo(x + dir*8, topY);
+  ctx.lineTo(x + dir*8, topY+6);
+  ctx.lineTo(x + dir*16, topY+6);
+  ctx.lineTo(x + dir*16, topY+14);
+  ctx.lineTo(x + dir*22, topY+14);
+  ctx.lineTo(x + dir*22, G.surfaceY);
+  ctx.closePath();
+  ctx.fill();
+  // flag / antenna
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(x+dir*3, topY);
+  ctx.lineTo(x+dir*3, topY-12);
+  ctx.stroke();
+  // small rect flag
+  ctx.fillRect(x+dir*3, topY-12, dir*6, 4);
+  // underwater base hull
+  ctx.fillStyle = color;
+  ctx.fillRect(side==='ally'?0:x-26, G.surfaceY, 26, G.H-G.surfaceY);
+}
+
+function drawUnit(ctx, u){
+  const tpl = u.tpl;
+  const color = u.side==='ally' ? '#0b0b0b' : '#7a1818';
+
+  // HP bar (simple tick)
+  const hpRatio = u.hp/u.maxHp;
+  if(hpRatio < 0.99){
+    const bw = tpl.size*2.2;
+    const bh = 2;
+    const by = u.y - tpl.size - 6;
+    ctx.fillStyle='rgba(11,11,11,.25)';
+    ctx.fillRect(u.x-bw/2, by, bw, bh);
+    // Boss gets gold HP bar
+    ctx.fillStyle = tpl.boss ? '#f0c040' : (u.side==='ally' ? '#0b0b0b' : '#b53939');
+    ctx.fillRect(u.x-bw/2, by, bw*hpRatio, bh);
+  }
+
+  ctx.save();
+  ctx.translate(u.x, u.y);
+  ctx.scale(u.facing||1, 1);
+  ctx.fillStyle = color;
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 1;
+  drawShape(ctx, tpl.shape, tpl.size);
+  ctx.restore();
+}
+
+/* ---------- Unit silhouettes ---------- */
+function drawShape(ctx, shape, s){
+  switch(shape){
+    case 'patrol':
+      // small boat: trapezoid hull + tiny cabin
+      ctx.beginPath();
+      ctx.moveTo(-s, 0);
+      ctx.lineTo(s*0.9, 0);
+      ctx.lineTo(s*0.7, s*0.4);
+      ctx.lineTo(-s*0.7, s*0.4);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillRect(-s*0.3, -s*0.5, s*0.7, s*0.5);
+      break;
+    case 'destroyer':
+      // longer hull, mast, cannon
+      ctx.beginPath();
+      ctx.moveTo(-s*1.1, 0);
+      ctx.lineTo(s*1.2, 0);
+      ctx.lineTo(s*0.95, s*0.4);
+      ctx.lineTo(-s*0.9, s*0.4);
+      ctx.closePath(); ctx.fill();
+      ctx.fillRect(-s*0.2, -s*0.55, s*0.8, s*0.55);
+      // mast
+      ctx.fillRect(s*0.1, -s*1.1, 1.4, s*0.55);
+      // gun
+      ctx.fillRect(-s*0.9, -s*0.2, s*0.5, 2);
+      break;
+    case 'battleship':
+      // big hull, 2 turrets, bridge, stack
+      ctx.beginPath();
+      ctx.moveTo(-s*1.2, 0);
+      ctx.lineTo(s*1.3, 0);
+      ctx.lineTo(s*1.05, s*0.4);
+      ctx.lineTo(-s*1.0, s*0.4);
+      ctx.closePath(); ctx.fill();
+      // superstructure
+      ctx.fillRect(-s*0.25, -s*0.7, s*0.8, s*0.7);
+      // stack
+      ctx.fillRect(s*0.1, -s*0.9, s*0.3, s*0.25);
+      // front turret
+      ctx.fillRect(-s*0.9, -s*0.25, s*0.45, s*0.25);
+      ctx.fillRect(-s*1.15, -s*0.18, s*0.35, 2);
+      // rear turret
+      ctx.fillRect(s*0.65, -s*0.25, s*0.4, s*0.25);
+      ctx.fillRect(s*0.95, -s*0.18, s*0.35, 2);
+      // mast
+      ctx.fillRect(s*0.05, -s*1.3, 1.4, s*0.65);
+      break;
+    case 'yamato':
+      // super battleship: enormous hull, 3 main turrets (9 guns), pagoda mast
+      ctx.beginPath();
+      ctx.moveTo(-s*1.4, 0);
+      ctx.lineTo(s*1.5, 0);
+      ctx.lineTo(s*1.2, s*0.45);
+      ctx.lineTo(-s*1.15, s*0.45);
+      ctx.closePath(); ctx.fill();
+      // pagoda-style superstructure (tiered)
+      ctx.fillRect(-s*0.15, -s*0.55, s*0.5, s*0.55);
+      ctx.fillRect(-s*0.05, -s*0.85, s*0.35, s*0.3);
+      ctx.fillRect(s*0.02, -s*1.1, s*0.22, s*0.25);
+      // mast
+      ctx.fillRect(s*0.1, -s*1.55, 1.6, s*0.45);
+      // stack
+      ctx.fillRect(s*0.45, -s*0.9, s*0.28, s*0.35);
+      // front turret A (3 guns)
+      ctx.fillRect(-s*0.85, -s*0.3, s*0.4, s*0.3);
+      for(let i=-1;i<=1;i++) ctx.fillRect(-s*1.15, -s*0.22 + i*s*0.09, s*0.4, 1.8);
+      // front turret B (3 guns, superfiring)
+      ctx.fillRect(-s*0.45, -s*0.5, s*0.35, s*0.25);
+      for(let i=-1;i<=1;i++) ctx.fillRect(-s*0.75, -s*0.42 + i*s*0.08, s*0.35, 1.6);
+      // rear turret (3 guns)
+      ctx.fillRect(s*0.75, -s*0.3, s*0.4, s*0.3);
+      for(let i=-1;i<=1;i++) ctx.fillRect(s*1.05, -s*0.22 + i*s*0.09, s*0.4, 1.8);
+      break;
+    case 'landing':
+      // wide flat boat, ramp up front
+      ctx.beginPath();
+      ctx.moveTo(-s*1.0, 0);
+      ctx.lineTo(s*1.2, -s*0.25);
+      ctx.lineTo(s*1.2, s*0.4);
+      ctx.lineTo(-s*0.85, s*0.4);
+      ctx.closePath(); ctx.fill();
+      // crates on deck
+      ctx.fillRect(-s*0.3, -s*0.3, s*0.3, s*0.3);
+      ctx.fillRect(s*0.1, -s*0.3, s*0.3, s*0.3);
+      break;
+    case 'missile':
+      // long hull with vertical launch cells
+      ctx.beginPath();
+      ctx.moveTo(-s*1.1, 0);
+      ctx.lineTo(s*1.2, 0);
+      ctx.lineTo(s*0.95, s*0.4);
+      ctx.lineTo(-s*0.9, s*0.4);
+      ctx.closePath(); ctx.fill();
+      // VLS cells (series of small squares)
+      for(let i=0;i<4;i++){
+        ctx.fillRect(-s*0.6+i*s*0.35, -s*0.55, s*0.25, s*0.55);
+      }
+      // radar mast
+      ctx.fillRect(s*0.35, -s*1.1, 1.4, s*0.55);
+      ctx.beginPath();
+      ctx.arc(s*0.42,-s*1.15,s*0.2,0,Math.PI*2); ctx.fill();
+      break;
+    case 'carrier':
+      // flat deck, island tower
+      ctx.beginPath();
+      ctx.moveTo(-s*1.3, -s*0.1);
+      ctx.lineTo(s*1.4, -s*0.1);
+      ctx.lineTo(s*1.15, s*0.4);
+      ctx.lineTo(-s*1.1, s*0.4);
+      ctx.closePath(); ctx.fill();
+      // island on right side
+      ctx.fillRect(s*0.45, -s*0.75, s*0.35, s*0.65);
+      ctx.fillRect(s*0.55, -s*1.1, 1.4, s*0.4);
+      // runway stripes
+      ctx.fillStyle = '#ece4d3';
+      for(let i=0;i<4;i++){
+        ctx.fillRect(-s*1.1+i*s*0.6, -s*0.02, s*0.25, 1);
+      }
+      ctx.fillStyle = '#0b0b0b';
+      break;
+    case 'minelayer':
+      // hull with spheres on deck
+      ctx.beginPath();
+      ctx.moveTo(-s*1.0, 0);
+      ctx.lineTo(s*1.1, 0);
+      ctx.lineTo(s*0.9, s*0.4);
+      ctx.lineTo(-s*0.85, s*0.4);
+      ctx.closePath(); ctx.fill();
+      ctx.fillRect(-s*0.1, -s*0.55, s*0.55, s*0.55);
+      // mines as small circles
+      for(let i=0;i<3;i++){
+        ctx.beginPath();
+        ctx.arc(-s*0.55+i*s*0.35, -s*0.15, s*0.2, 0, Math.PI*2);
+        ctx.fill();
+      }
+      break;
+    case 'submarine':
+      // cigar-shape with conning tower
+      ctx.beginPath();
+      ctx.ellipse(0, 0, s*1.3, s*0.35, 0, 0, Math.PI*2);
+      ctx.fill();
+      // tower
+      ctx.fillRect(-s*0.15, -s*0.6, s*0.4, s*0.3);
+      // periscope
+      ctx.fillRect(s*0.1, -s*0.85, 1.2, s*0.3);
+      // fin at back
+      ctx.beginPath();
+      ctx.moveTo(-s*1.3, 0);
+      ctx.lineTo(-s*1.5, -s*0.3);
+      ctx.lineTo(-s*1.1, 0);
+      ctx.closePath(); ctx.fill();
+      break;
+    case 'aegis':
+      // sleek hull, big phased-array panel
+      ctx.beginPath();
+      ctx.moveTo(-s*1.1, 0);
+      ctx.lineTo(s*1.2, 0);
+      ctx.lineTo(s*1.0, s*0.4);
+      ctx.lineTo(-s*0.9, s*0.4);
+      ctx.closePath(); ctx.fill();
+      // superstructure with slanted SPY panels
+      ctx.beginPath();
+      ctx.moveTo(-s*0.3, 0);
+      ctx.lineTo(s*0.5, 0);
+      ctx.lineTo(s*0.35, -s*0.8);
+      ctx.lineTo(-s*0.15, -s*0.8);
+      ctx.closePath(); ctx.fill();
+      // mast
+      ctx.fillRect(s*0.05, -s*1.3, 1.4, s*0.5);
+      break;
+    case 'fighter':
+      // small sharp delta
+      ctx.beginPath();
+      ctx.moveTo(s*1.2, 0);
+      ctx.lineTo(-s*0.9, -s*0.5);
+      ctx.lineTo(-s*0.4, 0);
+      ctx.lineTo(-s*0.9, s*0.5);
+      ctx.closePath(); ctx.fill();
+      // cockpit dot
+      ctx.fillStyle = '#ece4d3';
+      ctx.beginPath(); ctx.arc(s*0.3,0,s*0.12,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle = '#0b0b0b';
+      break;
+    case 'torpedo_bomber':
+      // Chunky torpedo bomber: wide straight wings, thick body, torpedo beneath
+      ctx.beginPath();
+      ctx.moveTo(s*1.1, 0);
+      ctx.lineTo(-s*0.3, -s*0.22);
+      ctx.lineTo(-s*1.4, -s*0.7);
+      ctx.lineTo(-s*0.8, -s*0.18);
+      ctx.lineTo(-s*1.0, 0);
+      ctx.lineTo(-s*0.8, s*0.18);
+      ctx.lineTo(-s*1.4, s*0.7);
+      ctx.lineTo(-s*0.3, s*0.22);
+      ctx.closePath(); ctx.fill();
+      // torpedo slung below fuselage
+      ctx.beginPath();
+      ctx.ellipse(s*0.1, s*0.6, s*0.75, s*0.18, 0, 0, Math.PI*2);
+      ctx.fill();
+      break;
+    case 'bomber':
+      // big swept-wing
+      ctx.beginPath();
+      ctx.moveTo(s*1.4, 0);
+      ctx.lineTo(-s*0.3, -s*0.25);
+      ctx.lineTo(-s*1.2, -s*0.9);
+      ctx.lineTo(-s*0.6, -s*0.2);
+      ctx.lineTo(-s*1.2, 0);
+      ctx.lineTo(-s*0.6, s*0.2);
+      ctx.lineTo(-s*1.2, s*0.9);
+      ctx.lineTo(-s*0.3, s*0.25);
+      ctx.closePath(); ctx.fill();
+      break;
+    case 'aa':
+      // base + rotating turret + 4 barrels
+      ctx.fillRect(-s*0.9, 0, s*1.8, s*0.4);
+      // turret dome
+      ctx.beginPath();
+      ctx.arc(0, 0, s*0.6, Math.PI, 0);
+      ctx.fill();
+      // barrels
+      for(let i=-1;i<=1;i+=1){
+        ctx.fillRect(i*s*0.2, -s*1.2, 2, s*0.7);
+      }
+      break;
+    case 'coastal':
+      // big gun battery
+      ctx.fillRect(-s*0.9, 0, s*1.8, s*0.4);
+      ctx.beginPath();
+      ctx.arc(0, 0, s*0.55, Math.PI, 0);
+      ctx.fill();
+      // two big barrels pointing out
+      ctx.fillRect(-s*0.25, -s*0.35, s*0.5, 3);
+      ctx.fillRect(s*0.15, -s*0.15, s*1.3, 3);
+      ctx.fillRect(s*0.15, -s*0.55, s*1.3, 3);
+      break;
+  }
+}
+
+function drawMine(ctx, m){
+  ctx.fillStyle = m.side==='ally' ? '#0b0b0b' : '#7a1818';
+  ctx.beginPath();
+  ctx.arc(m.x, m.y, 5, 0, Math.PI*2);
+  ctx.fill();
+  // spikes
+  ctx.strokeStyle = ctx.fillStyle;
+  ctx.lineWidth = 1;
+  for(let i=0;i<6;i++){
+    const a = i/6*Math.PI*2;
+    ctx.beginPath();
+    ctx.moveTo(m.x+Math.cos(a)*5, m.y+Math.sin(a)*5);
+    ctx.lineTo(m.x+Math.cos(a)*8, m.y+Math.sin(a)*8);
+    ctx.stroke();
+  }
+}
+
+function drawProjectile(ctx, p){
+  const color = p.side==='ally' ? '#0b0b0b' : '#7a1818';
+  ctx.strokeStyle = color;
+  ctx.fillStyle = color;
+  if(p.type==='missile'){
+    // missile body
+    const ang = Math.atan2(p.ty-p.y, p.tx-p.x);
+    ctx.save();
+    ctx.translate(p.x, p.y);
+    ctx.rotate(ang);
+    ctx.fillRect(-6, -1.5, 12, 3);
+    // flame (white)
+    ctx.fillStyle = '#ece4d3';
+    ctx.fillRect(-9, -1, 3, 2);
+    ctx.restore();
+  } else if(p.type==='flak'){
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 1.5, 0, Math.PI*2);
+    ctx.fill();
+    // trail
+    ctx.lineWidth=1;
+    ctx.beginPath();
+    ctx.moveTo(p.x, p.y);
+    ctx.lineTo(p.x - (p.tx-p.x)*0.06, p.y - (p.ty-p.y)*0.06);
+    ctx.stroke();
+  } else {
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(p.x, p.y);
+    ctx.lineTo(p.x - (p.tx-p.x)*0.04, p.y - (p.ty-p.y)*0.04);
+    ctx.stroke();
+  }
+}
+
+function drawFX(ctx, fx){
+  const k = fx.t/fx.life;
+  if(fx.kind==='explode'){
+    ctx.fillStyle = `rgba(236,228,211,${1-k})`;
+    ctx.beginPath();
+    ctx.arc(fx.x, fx.y, fx.size*(0.6+k*1.4), 0, Math.PI*2);
+    ctx.fill();
+    ctx.strokeStyle = `rgba(11,11,11,${1-k})`;
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.arc(fx.x, fx.y, fx.size*(0.6+k*1.4), 0, Math.PI*2);
+    ctx.stroke();
+  } else if(fx.kind==='hit'){
+    ctx.fillStyle = `rgba(138,26,26,${1-k})`;
+    ctx.beginPath();
+    ctx.arc(fx.x, fx.y, fx.size*(1+k), 0, Math.PI*2);
+    ctx.fill();
+  }
+}
+
+/* ---------- HUD ---------- */
+function updateHUD(){
+  document.getElementById('gold').textContent = Math.floor(G.ally.gold);
+  document.getElementById('ally-hp').style.transform = `scaleX(${Math.max(0,G.ally.hp/G.ally.maxHp)})`;
+  document.getElementById('enemy-hp').style.transform = `scaleX(${Math.max(0,G.enemy.hp/G.enemy.maxHp)})`;
+  document.getElementById('ally-hp-text').textContent = Math.max(0,Math.floor(G.ally.hp));
+  document.getElementById('enemy-hp-text').textContent = Math.max(0,Math.floor(G.enemy.hp));
+  const s = Math.floor(G.t);
+  document.getElementById('timer').textContent =
+    String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+
+  // Button affordability
+  for(const k in UNITS){
+    const btn = document.querySelector(`[data-unit="${k}"]`);
+    if(!btn) continue;
+    if(G.ally.gold >= UNITS[k].cost) btn.classList.add('affordable');
+    else btn.classList.remove('affordable');
+  }
+  updateMineButton();
+}
+
+function updateMineButton(){
+  const btn = document.getElementById('upgrade-btn');
+  if(!btn) return;
+  const lvlEl = document.getElementById('mine-lv');
+  const costEl = document.getElementById('mine-cost');
+  lvlEl.textContent = G.mineLvl;
+  if(G.mineLvl >= G.MINE_COSTS.length){
+    btn.classList.add('maxed');
+    btn.classList.remove('affordable');
+  } else {
+    const cost = G.MINE_COSTS[G.mineLvl];
+    costEl.textContent = cost;
+    if(G.ally.gold >= cost) btn.classList.add('affordable');
+    else btn.classList.remove('affordable');
+  }
+}
+
+function tryUpgradeMine(){
+  if(!G.running || G.over) return;
+  if(G.mineLvl >= G.MINE_COSTS.length) return;
+  const cost = G.MINE_COSTS[G.mineLvl];
+  if(G.ally.gold < cost){ toast('資金不足'); return; }
+  G.ally.gold -= cost;
+  G.mineLvl++;
+  const bonus = G.mineLvl * G.MINE_INCOME_PER_LVL;
+  toast(`金鉱 Lv${G.mineLvl} (+${bonus}/s)`);
+  updateMineButton();
+}
+
+/* ---------- Buttons ---------- */
+const LONG_PRESS_MS = 420;
+let pressState = null; // { type, timer, fired, btn }
+
+function cancelPress(){
+  if(pressState && pressState.timer){
+    clearTimeout(pressState.timer);
+  }
+  if(pressState && pressState.btn){
+    pressState.btn.classList.remove('holding');
+  }
+  pressState = null;
+}
+
+function trySpawn(k){
+  if(!G.running||G.over) return;
+  const u = UNITS[k];
+  if(G.ally.gold < u.cost){
+    toast('資金不足');
+    return;
+  }
+  spawn(k,'ally');
+}
+
+function createButtons(){
+  const row1 = document.getElementById('row1');
+  const row2 = document.getElementById('row2');
+  [ROW1, ROW2].forEach((row, idx)=>{
+    const container = idx===0?row1:row2;
+    row.forEach(k=>{
+      const u = UNITS[k];
+      const btn = document.createElement('button');
+      btn.className='ubtn';
+      btn.dataset.unit=k;
+      btn.dataset.layer=u.layer;
+      btn.innerHTML = `
+        <span class="tier">${u.tier}</span>
+        <span class="icon">${unitIconSVG(u.shape)}</span>
+        <span class="name">${u.short}</span>
+        ${u.tag ? `<span class="tag">${u.tag}</span>` : ''}
+        <span class="cost">${u.cost}</span>`;
+      // Long-press + tap via pointer events
+      btn.addEventListener('pointerdown',(e)=>{
+        e.preventDefault();
+        cancelPress();
+        pressState = { type:k, btn, fired:false };
+        btn.classList.add('holding');
+        pressState.timer = setTimeout(()=>{
+          if(!pressState) return;
+          pressState.fired = true;
+          btn.classList.remove('holding');
+          showUnitInfo(k);
+        }, LONG_PRESS_MS);
+      });
+      btn.addEventListener('pointerup',(e)=>{
+        e.preventDefault();
+        if(!pressState || pressState.type !== k) return;
+        const fired = pressState.fired;
+        cancelPress();
+        if(!fired) trySpawn(k);
+      });
+      btn.addEventListener('pointerleave', cancelPress);
+      btn.addEventListener('pointercancel', cancelPress);
+      // prevent context menu on long press (mobile)
+      btn.addEventListener('contextmenu',(e)=>e.preventDefault());
+      container.appendChild(btn);
+    });
+  });
+}
+
+/* ---------- Unit info bottom sheet ---------- */
+function layerLabel(layer){
+  return {surface:'水上',underwater:'水中',air:'空中',defense:'防衛'}[layer]||'';
+}
+function showUnitInfo(key){
+  const u = UNITS[key];
+  const info = UNIT_INFO[key];
+  const sheet = document.getElementById('info-sheet');
+  sheet.innerHTML = `
+    <div class="info-head">
+      <div class="info-icon">${unitIconSVG(u.shape)}</div>
+      <div class="info-title">
+        <div class="info-name">${u.name}</div>
+        <div class="info-tier">階級 ${u.tier} · ${layerLabel(u.layer)}</div>
+      </div>
+      <div class="info-cost"><small>¥</small>${u.cost}</div>
+    </div>
+    <div class="info-role">${info.role}</div>
+    <div class="info-stats">
+      <div><span class="lab">HP</span><span class="val">${u.hp}</span></div>
+      <div><span class="lab">攻撃</span><span class="val">${u.dmg||'—'}</span></div>
+      <div><span class="lab">射程</span><span class="val">${u.range||'—'}</span></div>
+      <div><span class="lab">速度</span><span class="val">${u.speed||'—'}</span></div>
+    </div>
+    <div class="info-match">
+      <div class="m-row strong"><span class="lbl">▲ 強い</span><span>${info.strong}</span></div>
+      <div class="m-row weak"><span class="lbl">▼ 弱い</span><span>${info.weak}</span></div>
+    </div>
+    <div class="info-hint">タップして閉じる</div>
+  `;
+  sheet.classList.add('show');
+}
+function hideUnitInfo(){
+  document.getElementById('info-sheet').classList.remove('show');
+}
+
+/* ---------- Icon SVGs for buttons ---------- */
+function unitIconSVG(shape){
+  const stroke='currentColor';
+  const w=32,h=22;
+  const inner = (()=>{
+    switch(shape){
+      case 'patrol': return `<polygon points="4,12 26,12 23,18 7,18"/><rect x="11" y="6" width="10" height="6"/>`;
+      case 'destroyer': return `<polygon points="3,13 28,13 25,18 6,18"/><rect x="13" y="5" width="9" height="8"/><rect x="17" y="1" width="1.4" height="6"/>`;
+      case 'battleship': return `<polygon points="2,13 29,13 26,18 5,18"/><rect x="11" y="5" width="10" height="8"/><rect x="6" y="9" width="4" height="4"/><rect x="22" y="9" width="4" height="4"/><rect x="15" y="1" width="1.4" height="6"/>`;
+      case 'yamato': return `<polygon points="1,13 30,13 27,18 4,18"/><rect x="13" y="7" width="6" height="6"/><rect x="14" y="4" width="4" height="3"/><rect x="15" y="1" width="1.4" height="3"/><rect x="4" y="9" width="5" height="4"/><rect x="10" y="10" width="3" height="3"/><rect x="19" y="10" width="3" height="3"/><rect x="23" y="9" width="5" height="4"/>`;
+      case 'landing': return `<polygon points="3,11 28,8 28,18 5,18"/><rect x="10" y="5" width="5" height="5"/><rect x="17" y="5" width="5" height="5"/>`;
+      case 'missile': return `<polygon points="3,13 28,13 25,18 6,18"/><rect x="8" y="6" width="3" height="7"/><rect x="12" y="6" width="3" height="7"/><rect x="16" y="6" width="3" height="7"/><rect x="20" y="6" width="3" height="7"/>`;
+      case 'carrier': return `<polygon points="2,11 30,11 27,17 5,17"/><rect x="19" y="5" width="4" height="6"/><line x1="21" y1="0" x2="21" y2="5" stroke="${stroke}" stroke-width="1.2"/>`;
+      case 'minelayer': return `<polygon points="3,13 28,13 25,18 6,18"/><rect x="14" y="5" width="7" height="8"/><circle cx="7" cy="10" r="2"/><circle cx="11" cy="10" r="2"/>`;
+      case 'submarine': return `<ellipse cx="16" cy="13" rx="14" ry="4"/><rect x="14" y="6" width="5" height="5"/><line x1="17" y1="1" x2="17" y2="6" stroke="${stroke}" stroke-width="1.2"/>`;
+      case 'aegis': return `<polygon points="3,13 28,13 25,18 6,18"/><polygon points="12,13 22,13 19,4 15,4"/><rect x="17" y="0" width="1.4" height="5"/>`;
+      case 'fighter': return `<polygon points="28,11 8,4 13,11 8,18"/><circle cx="21" cy="11" r="1.4" fill="#ece4d3"/>`;
+      case 'torpedo_bomber': return `<polygon points="27,11 18,8.5 4,2 12,9 3,11 12,13 4,20 18,13.5"/><ellipse cx="17" cy="17" rx="8" ry="2.5"/>`;
+      case 'bomber': return `<polygon points="30,11 18,8 4,1 12,9 4,11 12,13 4,21 18,14"/>`;
+      case 'aa': return `<rect x="4" y="12" width="24" height="6"/><path d="M 8 12 A 8 8 0 0 1 24 12 Z"/><rect x="10" y="2" width="1.4" height="10"/><rect x="15" y="2" width="1.4" height="10"/><rect x="20" y="2" width="1.4" height="10"/>`;
+      case 'coastal': return `<rect x="4" y="12" width="24" height="6"/><path d="M 9 12 A 7 7 0 0 1 23 12 Z"/><rect x="14" y="4" width="14" height="1.4"/><rect x="14" y="8" width="14" height="1.4"/>`;
+    }
+    return '';
+  })();
+  return `<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">${inner}</svg>`;
+}
+
+/* ---------- Toast ---------- */
+let toastTimer = null;
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove('show'), 1200);
+}
+
+/* ---------- End game ---------- */
+function endGame(win){
+  G.over = true;
+  const panel = document.getElementById('panel');
+  panel.className = 'panel ' + (win?'result-victory':'result-defeat');
+  panel.innerHTML = `
+    <h1>${win?'勝利':'敗北'}</h1>
+    <div class="sub">${win?'VICTORY':'DEFEAT'}</div>
+    <p>${win?'敵艦隊を殲滅した。':'自陣が陥落した。'}<br>経過時間 ${document.getElementById('timer').textContent}</p>
+    <button id="again-btn">再戦</button>
+  `;
+  document.getElementById('overlay').classList.add('show');
+  document.getElementById('again-btn').addEventListener('click', startGame);
+}
+
+/* ---------- Start ---------- */
+function startGame(){
+  G.running = true;
+  G.over = false;
+  G.t = 0;
+  G.lastTick = 0;
+  G.ally = { gold:100, hp:8000, maxHp:8000, income:8, defenses:[] };
+  G.enemy = { gold:300, hp:8000, maxHp:8000, income:6, defenses:[] };
+  G.units = [];
+  G.projectiles = [];
+  G.mines = [];
+  G.fx = [];
+  G.aiTimer = 3.0;
+  G.aiBurstLeft = 0;
+  G.difficulty = 0;
+  G.mineLvl = 0;
+  G.bossSpawned = false;
+  G.strategy = 'balanced';
+  G.strategyTimer = 12 + Math.random()*10; // first rotation after 12-22s
+  G.enemyRecent = [];
+  document.getElementById('overlay').classList.remove('show');
+  requestAnimationFrame(loop);
+  updateHUD();
+}
+
+/* ---------- Init ---------- */
+function init(){
+  setupCanvas();
+  createButtons();
+  updateHUD();
+  document.getElementById('start-btn').addEventListener('click', startGame);
+  document.getElementById('upgrade-btn').addEventListener('click', tryUpgradeMine);
+  // Fullscreen button — safe version
+  const fsBtn = document.getElementById('fs-btn');
+  fsBtn.addEventListener('click', () => {
+    try {
+      const el = document.documentElement;
+      const inFS = document.fullscreenElement || document.webkitFullscreenElement;
+      if(inFS){
+        const exitFn = document.exitFullscreen || document.webkitExitFullscreen;
+        if(exitFn) exitFn.call(document);
+      } else {
+        const reqFn = el.requestFullscreen || el.webkitRequestFullscreen;
+        if(reqFn){
+          Promise.resolve(reqFn.call(el)).catch(()=>toast('Safariで全画面可能'));
+        } else {
+          toast('Safariで全画面可能');
+        }
+      }
+    } catch(e){ toast('Safariで全画面可能'); }
+  });
+  // Tap info sheet to close
+  document.getElementById('info-sheet').addEventListener('click', hideUnitInfo);
+  // Handle orientation / window resize (layers recompute)
+  window.addEventListener('orientationchange', ()=>{
+    setTimeout(resize, 250);
+  });
+}
+init();
+</script>
+</body>
+</html>
