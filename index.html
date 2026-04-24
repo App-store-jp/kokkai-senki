@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>黒海戦記 — NAVAL WAR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@700;900&family=Zen+Kaku+Gothic+New:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#ece4d3;
+  --paper-dark:#d9cdb2;
+  --sea:#1a3349;
+  --sea-deep:#0e1f2e;
+  --ink:#0b0b0b;
+  --ink-soft:#1a1a1a;
+  --ally:#0b0b0b;
+  --enemy:#8a1a1a;
+  --enemy-soft:#b53939;
+  --gold:#b8892b;
+  --line:rgba(11,11,11,.22);
+  --line-sea:rgba(236,228,211,.14);
+  --panel:#14202b;
+  --panel-top:#1b2a38;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none;}
+html,body{height:100%;overflow:hidden;overscroll-behavior:none;}
+body{
+  font-family:"Zen Kaku Gothic New",system-ui,sans-serif;
+  background:#0a0a0a;
+  color:var(--paper);
+  touch-action:manipulation;
+}
+#app{
+  display:flex;flex-direction:column;
+  width:100vw;height:100vh;height:100dvh;
+  margin:0 auto;
+  background:#0a0a0a;
+  position:relative;
+}
