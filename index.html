@@ -593,10 +593,10 @@ function resize(){
   G.H = rect.height;
   // layer bands
   G.skyY     = 0;
-  G.skyBand  = G.H * 0.33;   // air layer height
+  G.skyBand  = G.H * 0.35;   // air layer height
   G.surfaceY = G.skyBand;    // sea starts here
-  G.surfaceBand = G.H * 0.30; // surface band
-  G.deepY = G.surfaceY + G.surfaceBand;
+  G.surfaceBand = G.H - G.skyBand; // full sea band (1 zone)
+  G.deepY = G.surfaceY + G.surfaceBand * 0.5; // virtual midpoint for underwater units
   G.deepBand = G.H - G.deepY;
 }
 
@@ -986,7 +986,7 @@ function updateUnit(u, dt){
   } else if(tpl.layer==='surface'){
     u.y = Math.max(G.surfaceY+8, Math.min(G.deepY-10, u.y));
   } else if(tpl.layer==='underwater'){
-    u.y = Math.max(G.deepY+10, Math.min(G.H-18, u.y));
+    u.y = Math.max(G.deepY+5, Math.min(G.H-18, u.y));
   }
   // Clamp x within battlefield so units never fly off screen
   u.x = Math.max(24, Math.min(G.W-24, u.x));
@@ -1291,12 +1291,6 @@ function drawSkyTexture(ctx){
   ctx.stroke();
 }
 function drawSeaTexture(ctx){
-  // deep zone line
-  ctx.strokeStyle='rgba(236,228,211,.08)';
-  ctx.beginPath();
-  ctx.moveTo(0,G.deepY);
-  ctx.lineTo(G.W,G.deepY);
-  ctx.stroke();
   // faint vertical gridlines
   ctx.strokeStyle='rgba(236,228,211,.04)';
   ctx.lineWidth=1;
