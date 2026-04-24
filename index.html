@@ -495,10 +495,10 @@ const UNITS = {
   },
   flagship: {
     name:'旗艦', short:'旗艦', layer:'surface', tier:'★', tag:'BOSS',
-    cost:0, hp:4000, dmg:120, speed:2, range:270, atk:2.5, reward:500,
-    targets:['surface','base'], size:32,
-    shots:5, boss:true,
-    dmgVs:{ yamato:1.2, battleship:1.2 },
+    cost:0, hp:18000, dmg:280, speed:3, range:320, atk:1.2, reward:1500,
+    targets:['surface','base'], size:38,
+    shots:8, boss:true,
+    dmgVs:{ yamato:1.5, battleship:1.5, carrier:1.5, aa:2.0, coastal:2.0 },
     shape:'yamato'
   }
 };
@@ -670,8 +670,8 @@ function update(dt){
   // Income (hybrid: auto regen + gold mine upgrades + difficulty + rubber band + frenzy)
   const mineBonus = G.mineLvl * G.MINE_INCOME_PER_LVL;
   const allyIncome = 8 + mineBonus + d*3;
-  const frenzy = Math.max(0, (G.t - 210) / 60); // kicks in at 3:30, +1 per min
-  const enemyIncome = 11 + dRaw*16 + frenzy*10 + hpStress*20;
+  const frenzy = Math.max(0, (G.t - 180) / 60); // kicks in at 3:00, +1 per min
+  const enemyIncome = 10 + dRaw*12 + frenzy*8 + hpStress*15;
   G.ally.gold = Math.min(G.ally.gold + allyIncome*dt, 9999);
   G.enemy.gold = Math.min(G.enemy.gold + enemyIncome*dt, 9999);
 
@@ -1043,16 +1043,16 @@ function enemyAI(){
 
   // Base weights: small units cap at 3min, big units keep scaling to 6min
   const base = {
-    torpedo_bomber: Math.max(0, -0.5 + dBig*0.8), // rare until mid-game
-    destroyer: 3,
-    battleship: 0.5 + dBig*1.8,
-    yamato: Math.max(0, -0.5 + dBig*1.2),
-    landing: 0.6 + d*1.5,
-    missile: 0.5 + dBig*1.5,
-    carrier: 0.2 + dBig*1.1,
+    torpedo_bomber: Math.max(0, 0.5 + dBig*1.2),
+    destroyer: 2.5,
+    battleship: 1.5 + dBig*2.5,
+    yamato: Math.max(0, 0.5 + dBig*2.0),
+    landing: 0.6 + d*1.2,
+    missile: 1.5 + dBig*2.0,
+    carrier: 1.0 + dBig*1.8,
     submarine: 2,
-    fighter: 2 + d,
-    bomber: 0.7 + dBig*1.5,
+    fighter: 1.5 + d,
+    bomber: 1.5 + dBig*2.0,
     aa: 1 + d,
     coastal: 1 + d
   };
@@ -1502,15 +1502,17 @@ function drawShape(ctx, shape, s){
       }
       break;
     case 'coastal':
-      // big gun battery
+      // big gun battery - base platform
       ctx.fillRect(-s*0.9, 0, s*1.8, s*0.4);
       ctx.beginPath();
       ctx.arc(0, 0, s*0.55, Math.PI, 0);
       ctx.fill();
-      // two big barrels pointing out
-      ctx.fillRect(-s*0.25, -s*0.35, s*0.5, 3);
-      ctx.fillRect(s*0.15, -s*0.15, s*1.3, 3);
-      ctx.fillRect(s*0.15, -s*0.55, s*1.3, 3);
+      // center barrel (forward)
+      ctx.fillRect(-s*0.1, -s*0.55, s*1.1, 3);
+      // two angled barrels
+      ctx.fillRect(-s*0.1, -s*0.3, s*0.95, 3);
+      // base block
+      ctx.fillRect(-s*0.3, -s*0.5, s*0.6, s*0.5);
       break;
   }
 }
