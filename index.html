@@ -500,11 +500,26 @@ const UNITS = {
     shots:8, boss:true,
     dmgVs:{ yamato:1.5, battleship:1.5, carrier:1.5, aa:2.0, coastal:2.0 },
     shape:'yamato'
+  },
+  commander: {
+    name:'艦隊司令', short:'司令艦', layer:'surface', tier:'☆', tag:'中ボス',
+    cost:0, hp:3000, dmg:150, speed:2, range:240, atk:2.0, reward:800,
+    targets:['surface','base'], size:30,
+    shots:3, boss:true,
+    dmgVs:{ yamato:1.2, battleship:1.2 },
+    shape:'yamato'
+  },
+  nuclear: {
+    name:'核搭載艦', short:'核艦', layer:'surface', tier:'★', tag:'核爆撃',
+    cost:1500, hp:3500, dmg:800, speed:1, range:9999, atk:12.0, reward:600,
+    targets:['surface','base'], size:30,
+    nuclear:true,
+    shape:'nuclear'
   }
 };
 
 const ROW1 = ['destroyer','submarine','landing','missile','battleship','yamato'];
-const ROW2 = ['fighter','bomber','carrier','torpedo_bomber','aa','coastal'];
+const ROW2 = ['fighter','bomber','carrier','nuclear','aa','coastal'];
 
 /* ---------- Unit info (for long-press popup) ---------- */
 const UNIT_INFO = {
@@ -519,7 +534,8 @@ const UNIT_INFO = {
   fighter:   { role:'高速戦闘機。潜水艦×1.75、爆撃機×1.5。対基地は低火力。',       strong:'潜水艦×1.75・爆撃機×1.5', weak:'対空砲に1.5倍食らう' },
   bomber:    { role:'重爆撃機。戦艦・空母・大和に1.5倍ダメージ。',                        strong:'戦艦×1.5・空母×1.5・大和×1.5・基地', weak:'戦闘機・対空砲（両方から1.5倍食らう）' },
   aa:        { role:'固定対空砲。爆撃機に1.5倍ダメージ。基地に4基まで。',           strong:'戦闘機・爆撃機×1.5・雷撃機',      weak:'水上艦・潜水艦には無力' },
-  coastal:   { role:'固定大砲（射程310）。戦艦・空母・大和に1.5倍ダメージ。基地に4基まで。', strong:'水上艦・戦艦×1.5・空母×1.5・大和×1.5', weak:'航空機・潜水艦には無力' }
+  coastal:   { role:'固定大砲（射程310）。戦艦・空母・大和に1.5倍ダメージ。基地に4基まで。', strong:'水上艦・戦艦×1.5・空母×1.5・大和×1.5', weak:'航空機・潜水艦には無力' },
+  nuclear:   { role:'核搭載巡洋艦。12秒ごとに画面1/3範囲を核爆発させ周囲の海上ユニット全員にダメージ。超低速・高HP。', strong:'海上ユニット全体に範囲ダメージ', weak:'速度1・射程は範囲爆発のみ' }
 };
 
 /* ---------- Game state ---------- */
@@ -538,6 +554,7 @@ const G = {
   strategyTimer:18,
   enemyRecent:[],
   bossSpawned:false,
+  midBossSpawned:false,
   waveIndex:0,
   nextId:1,
   mineLvl:0,
@@ -597,15 +614,10 @@ function spawn(type, side){
       toast('防衛砲台は4基まで');
       return false;
     }
-    const baseX = side==='ally' ? 18 : G.W-18;
+    const baseX = side==='ally' ? 20 : G.W-20;
     const slot = state.defenses.length;
-    // AA in sky band, coastal at surface level
-    let y;
-    if(tpl.type === 'aa' || type === 'aa'){
-      y = G.skyBand * 0.25 + slot * 18;
-    } else {
-      y = G.surfaceY - 12 - slot * 18;
-    }
+    // Stack all defenses vertically within the base tower area
+    const y = G.surfaceY - 14 - slot * 20;
     const u = makeUnit(type, side, baseX, y);
     u.stationary = true;
     state.defenses.push(u);
@@ -723,6 +735,21 @@ function update(dt){
     G.waveIndex++;
   }
 
+  // Mid-boss: Commander fleet spawns at 3 minutes
+  if(!G.midBossSpawned && G.t >= 180){
+    G.midBossSpawned = true;
+    const cmd = makeUnit('commander', 'enemy');
+    cmd.isCommander = true;
+    G.units.push(cmd);
+    // 4 escort battleships
+    for(let i=0;i<4;i++){
+      const escort = makeUnit('battleship', 'enemy');
+      escort.commanderId = cmd.id;
+      G.units.push(escort);
+    }
+    toast('⚠ 艦隊司令出現！護衛艦4隻を引き連れている！');
+  }
+
   // Boss flagship spawns at 5 minutes (once only)
   if(!G.bossSpawned && G.t >= 300){
     G.bossSpawned = true;
@@ -745,6 +772,13 @@ function update(dt){
         const arr = G[u.side].defenses;
         const idx = arr.indexOf(u);
         if(idx>=0) arr.splice(idx,1);
+      }
+      // If commander dies, kill all escorts
+      if(u.isCommander){
+        for(const other of G.units){
+          if(other.commanderId === u.id) other.hp = 0;
+        }
+        toast('✓ 艦隊司令撃沈！護衛艦壊滅！');
       }
       G.units.splice(i,1);
     }
@@ -796,10 +830,43 @@ function update(dt){
 function updateUnit(u, dt){
   const tpl = u.tpl;
 
-  // Single atkCd decrement per tick
-  if(u.atkCd > 0) u.atkCd -= dt;
+  // Enrage phase for boss units: HP < 50%
+  if(tpl.boss && u.hp <= u.maxHp * 0.5 && !u.enraged){
+    u.enraged = true;
+    toast('🔴 ' + tpl.name + ' 激怒！攻撃力・速度2倍！');
+  }
+  const enrageMult = u.enraged ? 2.0 : 1.0;
 
-  // carrier: spawn random aircraft (fighter 60%, bomber 28%, torpedo_bomber 12%)
+  // Single atkCd decrement per tick (faster when enraged)
+  if(u.atkCd > 0) u.atkCd -= dt * enrageMult;
+
+  // Nuclear cruiser: area blast hitting all enemy surface units
+  if(tpl.nuclear && u.atkCd <= 0){
+    const enemySide = u.side==='ally' ? 'enemy' : 'ally';
+    const blastR = G.W / 3;
+    let hit = false;
+    for(const other of G.units){
+      if(other.side !== enemySide) continue;
+      if(other.tpl.layer === 'air') continue;
+      const d = Math.hypot(other.x - u.x, other.y - u.y);
+      if(d <= blastR){
+        other.hp -= tpl.dmg * (1 - d/blastR * 0.5); // falloff
+        hit = true;
+      }
+    }
+    // Hit enemy base if in range
+    const baseX = u.side==='ally' ? G.W-20 : 20;
+    if(Math.abs(u.x - baseX) <= blastR){
+      G[enemySide].hp -= tpl.dmg * 0.5;
+    }
+    // Big nuclear explosion FX
+    G.fx.push({kind:'nuclear', x:u.x, y:u.y, size:blastR, t:0, life:1.2});
+    toast(u.side==='ally' ? '☢ 核爆発！' : '☢ 敵核攻撃！');
+    u.atkCd = tpl.atk;
+    return;
+  }
+
+  // carrier: spawn random aircraft
   if(tpl.spawns){
     u.spawnCd -= dt;
     if(u.spawnCd <= 0){
@@ -808,7 +875,7 @@ function updateUnit(u, dt){
       let spawnType = tpl.spawns;
       if(spawnType === 'random'){
         const r = Math.random();
-        spawnType = r < 0.60 ? 'fighter' : r < 0.88 ? 'bomber' : 'torpedo_bomber';
+        spawnType = r < 0.70 ? 'fighter' : r < 0.95 ? 'bomber' : 'torpedo_bomber';
       }
       const f = makeUnit(spawnType, u.side, fx, fy);
       G.units.push(f);
@@ -865,9 +932,9 @@ function updateUnit(u, dt){
     const dist = Math.hypot(dx,dy);
     if(dist > tpl.range*0.92){
       // move toward it
-      u.x += (dx/dist)*tpl.speed*dt;
+      u.x += (dx/dist)*tpl.speed*enrageMult*dt;
       if(tpl.layer==='air' || tpl.layer==='underwater'){
-        u.y += (dy/dist)*tpl.speed*0.3*dt;
+        u.y += (dy/dist)*tpl.speed*enrageMult*0.3*dt;
       }
       u.facing = Math.sign(dx) || u.facing;
     } else {
@@ -909,7 +976,7 @@ function updateUnit(u, dt){
   } else {
     // no target: move toward enemy base
     const dir = u.side==='ally' ? 1 : -1;
-    u.x += dir * tpl.speed * dt;
+    u.x += dir * tpl.speed * enrageMult * dt;
     u.facing = dir;
   }
 
@@ -1275,7 +1342,14 @@ function drawBase(side, x){
 
 function drawUnit(ctx, u){
   const tpl = u.tpl;
-  const color = u.side==='ally' ? '#0b0b0b' : '#7a1818';
+  // Enraged boss flashes red
+  let color;
+  if(u.enraged){
+    const pulse = Math.sin(Date.now()/120) > 0;
+    color = pulse ? '#ff2222' : '#cc0000';
+  } else {
+    color = u.side==='ally' ? '#0b0b0b' : '#7a1818';
+  }
 
   // HP bar (simple tick)
   const hpRatio = u.hp/u.maxHp;
@@ -1285,8 +1359,8 @@ function drawUnit(ctx, u){
     const by = u.y - tpl.size - 6;
     ctx.fillStyle='rgba(11,11,11,.25)';
     ctx.fillRect(u.x-bw/2, by, bw, bh);
-    // Boss gets gold HP bar
-    ctx.fillStyle = tpl.boss ? '#f0c040' : (u.side==='ally' ? '#0b0b0b' : '#b53939');
+    // Enraged boss gets red bar, normal boss gets gold
+    ctx.fillStyle = u.enraged ? '#ff4444' : tpl.boss ? '#f0c040' : (u.side==='ally' ? '#0b0b0b' : '#b53939');
     ctx.fillRect(u.x-bw/2, by, bw*hpRatio, bh);
   }
 
@@ -1515,6 +1589,28 @@ function drawShape(ctx, shape, s){
       ctx.lineTo(-s*0.3, s*0.25);
       ctx.closePath(); ctx.fill();
       break;
+    case 'nuclear':
+      // Massive hull
+      ctx.beginPath();
+      ctx.moveTo(-s*1.5, 0);
+      ctx.lineTo(s*1.6, 0);
+      ctx.lineTo(s*1.25, s*0.45);
+      ctx.lineTo(-s*1.3, s*0.45);
+      ctx.closePath(); ctx.fill();
+      // Superstructure
+      ctx.fillRect(-s*0.2, -s*0.8, s*0.7, s*0.8);
+      ctx.fillRect(-s*0.05, -s*1.2, s*0.45, s*0.45);
+      // Nuclear missile silos (3 cylinders)
+      for(let i=-1;i<=1;i++){
+        ctx.fillRect(i*s*0.55-s*0.12, -s*1.1, s*0.22, s*1.1);
+        ctx.beginPath();
+        ctx.moveTo(i*s*0.55-s*0.12, -s*1.1);
+        ctx.lineTo(i*s*0.55+s*0.1, -s*1.1);
+        ctx.lineTo(i*s*0.55-s*0.01, -s*1.5);
+        ctx.closePath(); ctx.fill();
+      }
+      ctx.fillRect(s*0.1, -s*1.6, 1.5, s*0.5);
+      break;
     case 'aa':
       // base + rotating turret + 4 barrels
       ctx.fillRect(-s*0.9, 0, s*1.8, s*0.4);
@@ -1593,7 +1689,29 @@ function drawProjectile(ctx, p){
 
 function drawFX(ctx, fx){
   const k = fx.t/fx.life;
-  if(fx.kind==='explode'){
+  if(fx.kind==='nuclear'){
+    // Massive shockwave ring
+    const r = fx.size * k;
+    ctx.save();
+    ctx.globalAlpha = Math.max(0, 1 - k*0.8);
+    // Flash white
+    ctx.fillStyle = `rgba(255,255,240,${(1-k)*0.6})`;
+    ctx.beginPath();
+    ctx.arc(fx.x, fx.y, r, 0, Math.PI*2);
+    ctx.fill();
+    // Shockwave ring
+    ctx.strokeStyle = `rgba(236,228,211,${1-k})`;
+    ctx.lineWidth = 8 * (1-k);
+    ctx.beginPath();
+    ctx.arc(fx.x, fx.y, r, 0, Math.PI*2);
+    ctx.stroke();
+    // Inner fireball
+    ctx.fillStyle = `rgba(180,60,20,${(1-k)*0.7})`;
+    ctx.beginPath();
+    ctx.arc(fx.x, fx.y, fx.size*0.3*(1-k*0.5), 0, Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+  } else if(fx.kind==='explode'){
     ctx.fillStyle = `rgba(236,228,211,${1-k})`;
     ctx.beginPath();
     ctx.arc(fx.x, fx.y, fx.size*(0.6+k*1.4), 0, Math.PI*2);
@@ -1786,6 +1904,7 @@ function unitIconSVG(shape){
       case 'fighter': return `<polygon points="28,11 8,4 13,11 8,18"/><circle cx="21" cy="11" r="1.4" fill="#ece4d3"/>`;
       case 'torpedo_bomber': return `<polygon points="27,11 18,8.5 4,2 12,9 3,11 12,13 4,20 18,13.5"/><ellipse cx="17" cy="17" rx="8" ry="2.5"/>`;
       case 'bomber': return `<polygon points="30,11 18,8 4,1 12,9 4,11 12,13 4,21 18,14"/>`;
+      case 'nuclear': return `<polygon points="1,13 31,13 28,19 4,19"/><rect x="11" y="5" width="3" height="8"/><rect x="15" y="5" width="3" height="8"/><rect x="19" y="5" width="3" height="8"/><polygon points="11,5 14,1 13,5"/><polygon points="15,5 16.5,1 18,5"/><polygon points="19,5 22,1 22,5"/>`;
       case 'aa': return `<rect x="4" y="12" width="24" height="6"/><path d="M 8 12 A 8 8 0 0 1 24 12 Z"/><rect x="10" y="2" width="1.4" height="10"/><rect x="15" y="2" width="1.4" height="10"/><rect x="20" y="2" width="1.4" height="10"/>`;
       case 'coastal': return `<rect x="4" y="12" width="24" height="6"/><path d="M 9 12 A 7 7 0 0 1 23 12 Z"/><rect x="14" y="4" width="14" height="1.4"/><rect x="14" y="8" width="14" height="1.4"/>`;
     }
@@ -1836,6 +1955,7 @@ function startGame(){
   G.difficulty = 0;
   G.mineLvl = 0;
   G.bossSpawned = false;
+  G.midBossSpawned = false;
   G.waveIndex = 0;
   G.strategy = 'balanced';
   G.strategyTimer = 12 + Math.random()*10; // first rotation after 12-22s
