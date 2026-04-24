@@ -482,14 +482,14 @@ const UNITS = {
   aa: {
     name:'対空砲', short:'対空砲', layer:'defense', tier:'D', tag:'対空',
     cost:110, hp:500, dmg:20, speed:0, range:260, atk:0.5, reward:50,
-    targets:['air'], stationary:true, size:16,
+    targets:['air'], stationary:true, size:11,
     dmgVs:{ bomber:1.5 },
     shape:'aa'
   },
   coastal: {
     name:'沿岸砲', short:'大砲', layer:'defense', tier:'D', tag:'対艦',
     cost:140, hp:700, dmg:32, speed:0, range:310, atk:1.1, reward:60,
-    targets:['surface'], stationary:true, size:16,
+    targets:['surface'], stationary:true, size:11,
     dmgVs:{ battleship:1.5, carrier:1.5, yamato:1.5 },
     shape:'coastal'
   },
@@ -596,9 +596,15 @@ function spawn(type, side){
       toast('防衛砲台は4基まで');
       return false;
     }
-    const baseX = side==='ally' ? 28 : G.W-28;
+    const baseX = side==='ally' ? 18 : G.W-18;
     const slot = state.defenses.length;
-    const y = 10 + slot*22;
+    // AA in sky band, coastal at surface level
+    let y;
+    if(tpl.type === 'aa' || type === 'aa'){
+      y = G.skyBand * 0.25 + slot * 18;
+    } else {
+      y = G.surfaceY - 12 - slot * 18;
+    }
     const u = makeUnit(type, side, baseX, y);
     u.stationary = true;
     state.defenses.push(u);
@@ -1502,15 +1508,14 @@ function drawShape(ctx, shape, s){
       }
       break;
     case 'coastal':
-      // base platform
-      ctx.fillRect(-s*0.9, 0, s*1.8, s*0.4);
-      // turret dome (half circle)
+      // compact gun emplacement
+      ctx.fillRect(-s*0.6, 0, s*1.2, s*0.35);
       ctx.beginPath();
-      ctx.arc(0, 0, s*0.55, Math.PI, 0);
+      ctx.arc(0, 0, s*0.38, Math.PI, 0);
       ctx.fill();
-      // two parallel barrels pointing forward
-      ctx.fillRect(0, -s*0.45, s*1.35, 2.5);
-      ctx.fillRect(0, -s*0.18, s*1.35, 2.5);
+      // two barrels
+      ctx.fillRect(0, -s*0.35, s*0.95, 2);
+      ctx.fillRect(0, -s*0.14, s*0.95, 2);
       break;
   }
 }
