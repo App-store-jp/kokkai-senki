@@ -537,7 +537,8 @@ const G = {
   strategy:'balanced',
   strategyTimer:18,
   enemyRecent:[],
-  bossSpawned:false, // last N enemy unit types, used to suppress repetition
+  bossSpawned:false,
+  waveIndex:0,
   nextId:1,
   mineLvl:0,
   MINE_COSTS:[150, 300, 450, 650, 850, 1200, 1600],
@@ -701,6 +702,25 @@ function update(dt){
       maxGap *= speedUp;
       G.aiTimer = minGap + Math.random()*(maxGap-minGap);
     }
+  }
+
+  // Forced wave system - guaranteed heavy units at time checkpoints
+  const WAVES = [
+    { t:90,  units:['battleship','battleship','missile'] },
+    { t:150, units:['yamato','carrier','battleship','missile'] },
+    { t:210, units:['yamato','yamato','carrier','bomber','torpedo_bomber'] },
+    { t:270, units:['yamato','yamato','battleship','carrier','missile','bomber'] },
+    { t:330, units:['yamato','yamato','yamato','carrier','carrier','missile','torpedo_bomber'] },
+    { t:390, units:['yamato','yamato','yamato','yamato','carrier','carrier','bomber','bomber'] },
+  ];
+  while(G.waveIndex < WAVES.length && G.t >= WAVES[G.waveIndex].t){
+    const wave = WAVES[G.waveIndex];
+    for(const type of wave.units){
+      const u = makeUnit(type, 'enemy');
+      G.units.push(u);
+    }
+    toast(`⚠ 敵増援 Wave${G.waveIndex+1}！`);
+    G.waveIndex++;
   }
 
   // Boss flagship spawns at 5 minutes (once only)
@@ -1049,16 +1069,16 @@ function enemyAI(){
 
   // Base weights: small units cap at 3min, big units keep scaling to 6min
   const base = {
-    torpedo_bomber: Math.max(0, 1.0 + dBig*1.5),
-    destroyer: 2.0,
-    battleship: 2.0 + dBig*4.0,
-    yamato: Math.max(0, 1.0 + dBig*3.5),
-    landing: 0.8 + d*1.0,
-    missile: 2.0 + dBig*3.0,
-    carrier: 1.5 + dBig*3.0,
-    submarine: 2.5,
-    fighter: 1.5 + d,
-    bomber: 2.0 + dBig*3.0,
+    torpedo_bomber: Math.max(0, 1.0 + dBig*2.0),
+    destroyer: Math.max(0.5, 3.0 - dBig*1.5),  // fades out over time
+    battleship: 1.0 + dBig*5.0,
+    yamato: Math.max(0, dBig*5.0),
+    landing: 0.5 + d*0.8,
+    missile: 1.0 + dBig*4.0,
+    carrier: 0.5 + dBig*4.0,
+    submarine: Math.max(0.5, 2.5 - dBig*0.8),
+    fighter: 1.0 + d*0.5,
+    bomber: 1.0 + dBig*4.0,
     aa: 1 + d,
     coastal: 1 + d
   };
@@ -1816,6 +1836,7 @@ function startGame(){
   G.difficulty = 0;
   G.mineLvl = 0;
   G.bossSpawned = false;
+  G.waveIndex = 0;
   G.strategy = 'balanced';
   G.strategyTimer = 12 + Math.random()*10; // first rotation after 12-22s
   G.enemyRecent = [];
