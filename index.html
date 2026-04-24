@@ -511,14 +511,22 @@ const UNITS = {
   },
   nuclear: {
     name:'核搭載艦', short:'核艦', layer:'surface', tier:'★', tag:'核爆撃',
-    cost:1500, hp:3500, dmg:800, speed:1, range:9999, atk:12.0, reward:600,
+    cost:1500, hp:3500, dmg:800, speed:1, range:9999, atk:20.0, reward:600,
     targets:['surface','base'], size:30,
     nuclear:true,
     shape:'nuclear'
+  },
+  aacruiser: {
+    name:'対空巡洋艦', short:'対空艦', layer:'surface', tier:'III', tag:'範囲対空',
+    cost:160, hp:220, dmg:28, speed:7, range:220, atk:1.8, reward:70,
+    targets:['air'], size:14,
+    areaAir:true,
+    dmgVs:{ bomber:1.8, torpedo_bomber:2.0 },
+    shape:'aacruiser'
   }
 };
 
-const ROW1 = ['destroyer','submarine','missile','yamato','nuclear'];
+const ROW1 = ['destroyer','submarine','missile','yamato','nuclear','aacruiser'];
 const ROW2 = ['fighter','bomber','carrier','torpedo_bomber','aa','coastal'];
 
 /* ---------- Unit info (for long-press popup) ---------- */
@@ -535,7 +543,8 @@ const UNIT_INFO = {
   bomber:    { role:'重爆撃機。戦艦・空母・大和に1.5倍ダメージ。',                        strong:'戦艦×1.5・空母×1.5・大和×1.5・基地', weak:'戦闘機・対空砲（両方から1.5倍食らう）' },
   aa:        { role:'固定対空砲。爆撃機に1.5倍ダメージ。基地に4基まで。',           strong:'戦闘機・爆撃機×1.5・雷撃機',      weak:'水上艦・潜水艦には無力' },
   coastal:   { role:'固定大砲（射程310）。戦艦・空母・大和に1.5倍ダメージ。基地に4基まで。', strong:'水上艦・戦艦×1.5・空母×1.5・大和×1.5', weak:'航空機・潜水艦には無力' },
-  nuclear:   { role:'核搭載巡洋艦。12秒ごとに画面1/3範囲を核爆発させ周囲の海上ユニット全員にダメージ。超低速・高HP。', strong:'海上ユニット全体に範囲ダメージ', weak:'速度1・射程は範囲爆発のみ' }
+  nuclear:   { role:'核搭載巡洋艦。20秒ごとに最大HP敵艦を中心に画面1/3範囲を核爆発させる。超低速・高HP。', strong:'海上ユニット全体に範囲ダメージ', weak:'速度1・射程は範囲爆発のみ' },
+  aacruiser: { role:'対空巡洋艦。射程内の航空ユニット全員に同時フラックダメージ。爆撃機×1.8、雷撃機×2.0。移動しながら制空する。', strong:'爆撃機×1.8・雷撃機×2.0・全航空一括攻撃', weak:'水上艦・潜水艦には攻撃不可' }
 };
 
 /* ---------- Game state ---------- */
@@ -839,6 +848,26 @@ function updateUnit(u, dt){
 
   // Single atkCd decrement per tick (faster when enraged)
   if(u.atkCd > 0) u.atkCd -= dt * enrageMult;
+
+  // AA Cruiser: area flak hitting ALL air enemies in range
+  if(tpl.areaAir && u.atkCd <= 0){
+    const enemySide = u.side==='ally' ? 'enemy' : 'ally';
+    let hit = false;
+    for(const other of G.units){
+      if(other.side !== enemySide) continue;
+      if(other.tpl.layer !== 'air') continue;
+      const d = Math.hypot(other.x - u.x, other.y - u.y);
+      if(d <= tpl.range){
+        const mult = (tpl.dmgVs && tpl.dmgVs[other.type]) || 1;
+        other.hp -= tpl.dmg * mult;
+        pushFX('hit', other.x, other.y, 8);
+        hit = true;
+      }
+    }
+    if(hit) u.atkCd = tpl.atk;
+    else u.atkCd = 0.3;
+    return;
+  }
 
   // Nuclear cruiser: blast centered on highest HP enemy surface unit
   if(tpl.nuclear && u.atkCd <= 0){
@@ -1586,6 +1615,20 @@ function drawShape(ctx, shape, s){
       ctx.lineTo(-s*0.3, s*0.25);
       ctx.closePath(); ctx.fill();
       break;
+    case 'aacruiser':
+      ctx.beginPath();
+      ctx.moveTo(-s*1.1, 0);
+      ctx.lineTo(s*1.2, 0);
+      ctx.lineTo(s*0.95, s*0.4);
+      ctx.lineTo(-s*0.9, s*0.4);
+      ctx.closePath(); ctx.fill();
+      ctx.beginPath();
+      ctx.arc(s*0.1, -s*0.1, s*0.35, Math.PI, 0);
+      ctx.fill();
+      ctx.fillRect(-s*0.5, -s*0.7, s*0.2, s*0.6);
+      ctx.fillRect(s*0.4, -s*0.7, s*0.2, s*0.6);
+      ctx.fillRect(s*0.08, -s*1.1, 1.4, s*0.45);
+      break;
     case 'nuclear':
       // Massive hull
       ctx.beginPath();
@@ -1901,6 +1944,7 @@ function unitIconSVG(shape){
       case 'fighter': return `<polygon points="28,11 8,4 13,11 8,18"/><circle cx="21" cy="11" r="1.4" fill="#ece4d3"/>`;
       case 'torpedo_bomber': return `<polygon points="27,11 18,8.5 4,2 12,9 3,11 12,13 4,20 18,13.5"/><ellipse cx="17" cy="17" rx="8" ry="2.5"/>`;
       case 'bomber': return `<polygon points="30,11 18,8 4,1 12,9 4,11 12,13 4,21 18,14"/>`;
+      case 'aacruiser': return `<polygon points="3,13 29,13 26,18 6,18"/><path d="M 12 13 A 5 5 0 0 1 22 13 Z"/><rect x="8" y="5" width="2.5" height="8"/><rect x="21" y="5" width="2.5" height="8"/><rect x="15" y="1" width="1.4" height="6"/>`;
       case 'nuclear': return `<polygon points="1,13 31,13 28,19 4,19"/><rect x="11" y="5" width="3" height="8"/><rect x="15" y="5" width="3" height="8"/><rect x="19" y="5" width="3" height="8"/><polygon points="11,5 14,1 13,5"/><polygon points="15,5 16.5,1 18,5"/><polygon points="19,5 22,1 22,5"/>`;
       case 'aa': return `<rect x="4" y="12" width="24" height="6"/><path d="M 8 12 A 8 8 0 0 1 24 12 Z"/><rect x="10" y="2" width="1.4" height="10"/><rect x="15" y="2" width="1.4" height="10"/><rect x="20" y="2" width="1.4" height="10"/>`;
       case 'coastal': return `<rect x="4" y="12" width="24" height="6"/><path d="M 9 12 A 7 7 0 0 1 23 12 Z"/><rect x="14" y="4" width="14" height="1.4"/><rect x="14" y="8" width="14" height="1.4"/>`;
