@@ -676,8 +676,8 @@ function update(dt){
   // Income (hybrid: auto regen + gold mine upgrades + difficulty + rubber band + frenzy)
   const mineBonus = G.mineLvl * G.MINE_INCOME_PER_LVL;
   const allyIncome = 8 + mineBonus + d*3;
-  const frenzy = Math.max(0, (G.t - 180) / 60); // kicks in at 3:00, +1 per min
-  const enemyIncome = 10 + dRaw*12 + frenzy*8 + hpStress*15;
+  const frenzy = Math.max(0, (G.t - 180) / 45); // kicks in at 3:00, +1 per 45s
+  const enemyIncome = 12 + dRaw*20 + frenzy*18 + hpStress*25;
   G.ally.gold = Math.min(G.ally.gold + allyIncome*dt, 9999);
   G.enemy.gold = Math.min(G.enemy.gold + enemyIncome*dt, 9999);
 
@@ -690,11 +690,11 @@ function update(dt){
       G.aiTimer = 0.4 + Math.random()*0.4; // quick follow-up
     } else {
       // Chance to start a burst (more likely as difficulty climbs or enemy is damaged)
-      if(Math.random() < 0.16 + dRaw*0.13 + hpStress*0.25){
-        G.aiBurstLeft = 1 + Math.floor(Math.random()*2); // 1-2 extras
+      if(Math.random() < 0.25 + dRaw*0.2 + hpStress*0.3){
+        G.aiBurstLeft = 2 + Math.floor(Math.random()*3); // 2-4 extras
       }
-      let minGap = Math.max(0.9, 4.0 - dRaw*2.6);
-      let maxGap = Math.max(1.4, 5.5 - dRaw*3.1);
+      let minGap = Math.max(0.5, 3.5 - dRaw*2.4);
+      let maxGap = Math.max(0.9, 4.5 - dRaw*2.8);
       // Rubber band: up to 30% faster spawns when damaged
       const speedUp = 1 - hpStress*0.3;
       minGap *= speedUp;
@@ -1049,16 +1049,16 @@ function enemyAI(){
 
   // Base weights: small units cap at 3min, big units keep scaling to 6min
   const base = {
-    torpedo_bomber: Math.max(0, 0.5 + dBig*1.2),
-    destroyer: 2.5,
-    battleship: 1.5 + dBig*2.5,
-    yamato: Math.max(0, 0.5 + dBig*2.0),
-    landing: 0.6 + d*1.2,
-    missile: 1.5 + dBig*2.0,
-    carrier: 1.0 + dBig*1.8,
-    submarine: 2,
+    torpedo_bomber: Math.max(0, 1.0 + dBig*1.5),
+    destroyer: 2.0,
+    battleship: 2.0 + dBig*4.0,
+    yamato: Math.max(0, 1.0 + dBig*3.5),
+    landing: 0.8 + d*1.0,
+    missile: 2.0 + dBig*3.0,
+    carrier: 1.5 + dBig*3.0,
+    submarine: 2.5,
     fighter: 1.5 + d,
-    bomber: 1.5 + dBig*2.0,
+    bomber: 2.0 + dBig*3.0,
     aa: 1 + d,
     coastal: 1 + d
   };
@@ -1110,8 +1110,8 @@ function enemyAI(){
     return;
   }
 
-  // Desired is unaffordable. 65% of the time, wait and save up.
-  if(Math.random() < 0.65){
+  // Desired is unaffordable. 35% of the time, wait and save up.
+  if(Math.random() < 0.35){
     G.aiTimer = 0.4 + Math.random()*0.5;
     return;
   }
